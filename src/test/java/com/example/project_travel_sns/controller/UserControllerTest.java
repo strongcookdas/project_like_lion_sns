@@ -12,11 +12,13 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.jpa.mapping.JpaMetamodelMappingContext;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -36,12 +38,14 @@ class UserControllerTest {
 
     @Test
     @DisplayName("회원가입 성공")
+    @WithMockUser
     void join_SUCCESS() throws Exception {
 
         String userName = "홍길동";
         String password = "0000";
 
         mockMvc.perform(post("/api/v1/users/join")
+                        .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsBytes(new UserJoinRequest(userName, password))))
                 .andDo(print())
@@ -50,6 +54,7 @@ class UserControllerTest {
 
     @Test
     @DisplayName("회원가입 실패_userName이 중복인 경우")
+    @WithMockUser
     void join_FAILED() throws Exception {
 
         String userName = "홍길동";
@@ -59,6 +64,7 @@ class UserControllerTest {
                 .thenThrow(new AppException(ErrorCode.DUPLICATED_USER_NAME,ErrorCode.DUPLICATED_USER_NAME.getMessage()));
 
         mockMvc.perform(post("/api/v1/users/join")
+                        .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsBytes(new UserJoinRequest(userName, password))))
                 .andDo(print())
