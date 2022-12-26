@@ -6,7 +6,7 @@ import com.example.project_travel_sns.domain.entity.User;
 import com.example.project_travel_sns.exception.AppException;
 import com.example.project_travel_sns.exception.ErrorCode;
 import com.example.project_travel_sns.repository.UserRepository;
-import com.example.project_travel_sns.utils.JwtUtil;
+import com.example.project_travel_sns.configuration.security.utils.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
