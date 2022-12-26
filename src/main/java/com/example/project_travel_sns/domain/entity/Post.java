@@ -1,5 +1,6 @@
 package com.example.project_travel_sns.domain.entity;
 
+import com.example.project_travel_sns.domain.dto.post.PostGetResponse;
 import lombok.*;
 
 import javax.persistence.*;
@@ -27,6 +28,17 @@ public class Post extends BaseEntity {
                 .title(title)
                 .body(body)
                 .user(user)
+                .build();
+    }
+
+    public PostGetResponse toResponse(){
+        return PostGetResponse.builder()
+                .id(this.id)
+                .userName(this.user.getUserName())
+                .title(this.title)
+                .body(this.body)
+                .createdAt(getCreateDate())
+                .lastModifiedAt(getModifiedDate())
                 .build();
     }
 }

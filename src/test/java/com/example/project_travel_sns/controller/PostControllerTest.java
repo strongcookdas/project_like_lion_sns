@@ -1,5 +1,6 @@
 package com.example.project_travel_sns.controller;
 
+import com.example.project_travel_sns.domain.dto.post.PostGetResponse;
 import com.example.project_travel_sns.domain.dto.post.PostWriteRequest;
 import com.example.project_travel_sns.domain.dto.post.PostWriteResponse;
 import com.example.project_travel_sns.exception.AppException;
@@ -16,10 +17,13 @@ import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.time.LocalDateTime;
+
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -35,6 +39,13 @@ class PostControllerTest {
     @Autowired
     ObjectMapper objectMapper;
 
+    PostGetResponse postGetResponse = PostGetResponse.builder()
+            .id(1l)
+            .userName("홍길동")
+            .title("제목")
+            .body("내용입니다.")
+            .createdAt(LocalDateTime.now())
+            .lastModifiedAt(LocalDateTime.now()).build();
     @Test
     @DisplayName("포스트 작성 성공")
     @WithMockUser
@@ -92,5 +103,25 @@ class PostControllerTest {
                         .content(objectMapper.writeValueAsBytes(new PostWriteRequest(title, body))))
                 .andDo(print())
                 .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    @DisplayName("포스트 상세 조회 성공")
+    @WithMockUser
+    void post_get_detail_SUCCESS() throws Exception {
+        String title = "테스트";
+        String body = "테스트입니다.";
+
+        when(postService.getPost(any()))
+                .thenReturn(postGetResponse);
+
+        mockMvc.perform(get("/api/v1/posts/1")
+                        .with(csrf()))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.result.id").exists())
+                .andExpect(jsonPath("$.result.title").exists())
+                .andExpect(jsonPath("$.result.body").exists())
+                .andExpect(jsonPath("$.result.userName").exists());
     }
 }

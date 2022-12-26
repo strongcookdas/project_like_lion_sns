@@ -1,5 +1,6 @@
 package com.example.project_travel_sns.service;
 
+import com.example.project_travel_sns.domain.dto.post.PostGetResponse;
 import com.example.project_travel_sns.domain.dto.post.PostWriteResponse;
 import com.example.project_travel_sns.domain.entity.Post;
 import com.example.project_travel_sns.domain.entity.User;
@@ -31,5 +32,15 @@ public class PostService {
         //포스트 DTO 반환
         PostWriteResponse postWriteResponse = PostWriteResponse.of("포스트 등록이 완료되었습니다.", savedPost.getId());
         return postWriteResponse;
+    }
+
+    public PostGetResponse getPost(Long id) {
+        //해당 id 포스트 찾기
+        Post findPost = postRepository.findById(id).orElseThrow(() -> {
+            throw new AppException(ErrorCode.POST_NOT_FOUND,ErrorCode.POST_NOT_FOUND.getMessage());
+        });
+        //포스트 응답 DTO 변환 후 리턴
+        PostGetResponse postGetResponse = findPost.toResponse();
+        return postGetResponse;
     }
 }

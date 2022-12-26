@@ -1,5 +1,6 @@
 package com.example.project_travel_sns.service;
 
+import com.example.project_travel_sns.domain.dto.post.PostGetResponse;
 import com.example.project_travel_sns.domain.entity.Post;
 import com.example.project_travel_sns.domain.entity.User;
 import com.example.project_travel_sns.exception.AppException;
@@ -24,6 +25,18 @@ class PostServiceTest {
 
     PostRepository postRepository = mock(PostRepository.class);
     UserRepository userRepository = mock(UserRepository.class);
+
+    User user = User.builder()
+            .userId(1l)
+            .userName("홍길동")
+            .password("0000")
+            .build();
+    Post post = Post.builder()
+            .id(1l)
+            .title("제목")
+            .body("내용입니다.")
+            .user(user)
+            .build();
 
     @BeforeEach
     void setUp() {
@@ -56,5 +69,15 @@ class PostServiceTest {
 
         AppException exception = assertThrows(AppException.class, () -> postService.write("아무개", "테스트", "테스트입니다."));
         assertEquals(ErrorCode.USERNAME_NOT_FOUND, exception.getErrorCode());
+    }
+
+    @Test
+    @DisplayName("포스트 상세조회 성공")
+    void post_get_detail_SUCCESS() {
+        when(postRepository.findById(any()))
+                .thenReturn(Optional.of(post));
+
+        PostGetResponse postGetResponse = postService.getPost(post.getId());
+        assertEquals(postGetResponse.getUserName(),post.getUser().getUserName());
     }
 }
