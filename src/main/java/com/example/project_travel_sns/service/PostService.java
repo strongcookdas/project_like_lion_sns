@@ -65,4 +65,23 @@ public class PostService {
         PostResponse postResponse = PostResponse.of("포스트 수정 완료", modifyPost.getId());
         return postResponse;
     }
+
+    public PostResponse delete(String userName, Long id) {
+        //포스트 체크
+        Post deletePost = postRepository.findById(id).orElseThrow(() -> {
+            throw new AppException(ErrorCode.POST_NOT_FOUND, ErrorCode.POST_NOT_FOUND.getMessage());
+        });
+        //유저 체크
+        User user = userRepository.findByUserName(userName).orElseThrow(() -> {
+            throw new AppException(ErrorCode.INVALID_PERMISSION, ErrorCode.INVALID_PERMISSION.getMessage());
+        });
+        //포스트 유저와 유처 비교
+        if (!deletePost.getUser().getUserName().equals(user.getUserName())) {
+            throw new AppException(ErrorCode.INVALID_PERMISSION, ErrorCode.INVALID_PERMISSION.getMessage());
+        }
+        //포스트 삭제 후 DTO 리턴
+        postRepository.deleteById(deletePost.getId());
+        PostResponse postResponse = PostResponse.of("포스트 삭제 완료", deletePost.getId());
+        return postResponse;
+    }
 }

@@ -123,7 +123,7 @@ class PostServiceTest {
         when(userRepository.findByUserName(any()))
                 .thenReturn(Optional.of(user2));
 
-        AppException exception = assertThrows(AppException.class, () -> postService.modify(user.getUserName(), post.getId(), modifyPost.getTitle(), modifyPost.getBody()));
+        AppException exception = assertThrows(AppException.class, () -> postService.modify(user2.getUserName(), post.getId(), modifyPost.getTitle(), modifyPost.getBody()));
         assertEquals(ErrorCode.INVALID_PERMISSION, exception.getErrorCode());
     }
 
@@ -136,6 +136,52 @@ class PostServiceTest {
                 .thenReturn(Optional.empty());
 
         AppException exception = assertThrows(AppException.class, () -> postService.modify(user.getUserName(), post.getId(), modifyPost.getTitle(), modifyPost.getBody()));
+        assertEquals(ErrorCode.INVALID_PERMISSION, exception.getErrorCode());
+    }
+    @Test
+    @DisplayName("포스트 삭제 성공")
+    void post_delete_SUCCESS() {
+        when(postRepository.findById(any()))
+                .thenReturn(Optional.of(post));
+        when(userRepository.findByUserName(any()))
+                .thenReturn(Optional.of(user));
+
+        assertDoesNotThrow(() -> postService.delete(user.getUserName(), post.getId()));
+    }
+
+    @Test
+    @DisplayName("포스트 삭제 실패1_포스트가 존재하지 않는 경우")
+    void post_delete_FAILED_not_found_post() {
+        when(postRepository.findById(any()))
+                .thenReturn(Optional.empty());
+        when(userRepository.findByUserName(any()))
+                .thenReturn(Optional.of(user));
+
+        AppException exception = assertThrows(AppException.class, () -> postService.delete(user.getUserName(), post.getId()));
+        assertEquals(ErrorCode.POST_NOT_FOUND, exception.getErrorCode());
+    }
+
+    @Test
+    @DisplayName("포스트 수정 실패2_포스트 작성자와 유저가 다른 경우")
+    void post_delete_FAILED_different() {
+        when(postRepository.findById(any()))
+                .thenReturn(Optional.of(post));
+        when(userRepository.findByUserName(any()))
+                .thenReturn(Optional.of(user2));
+
+        AppException exception = assertThrows(AppException.class, () -> postService.delete(user2.getUserName(), post.getId()));
+        assertEquals(ErrorCode.INVALID_PERMISSION, exception.getErrorCode());
+    }
+
+    @Test
+    @DisplayName("포스트 수정 실패3_유저가 존재하지 않는 경우")
+    void post_delete_FAILED_not_found_userName() {
+        when(postRepository.findById(any()))
+                .thenReturn(Optional.of(post));
+        when(userRepository.findByUserName(any()))
+                .thenReturn(Optional.empty());
+
+        AppException exception = assertThrows(AppException.class, () -> postService.delete(user.getUserName(), post.getId()));
         assertEquals(ErrorCode.INVALID_PERMISSION, exception.getErrorCode());
     }
 }

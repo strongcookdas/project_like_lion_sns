@@ -196,4 +196,74 @@ class PostControllerTest {
                 .andDo(print())
                 .andExpect(status().isInternalServerError());
     }
+    @Test
+    @DisplayName("포스트 삭제 성공")
+    @WithMockUser
+    void post_delete_SUCCESS() throws Exception {
+        String title = "테스트";
+        String body = "테스트입니다.";
+
+        when(postService.delete(any(),any()))
+                .thenReturn(new PostResponse("포스트 삭제 완료", 1l));
+
+        mockMvc.perform(delete("/api/v1/posts/1")
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsBytes(new PostRequest(title, body))))
+                .andDo(print())
+                .andExpect(status().isOk());
+    }
+    @Test
+    @DisplayName("포스트 삭제 실패1_인증")
+    @WithAnonymousUser
+    void post_delete_FAILED_authentication() throws Exception {
+        String title = "테스트";
+        String body = "테스트입니다.";
+
+        when(postService.delete(any(),any()))
+                .thenThrow(new AppException(ErrorCode.INVALID_PERMISSION,ErrorCode.INVALID_PERMISSION.getMessage()));
+
+        mockMvc.perform(delete("/api/v1/posts/1")
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsBytes(new PostRequest(title, body))))
+                .andDo(print())
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    @DisplayName("포스트 삭제 실패2_작성자 불일치")
+    @WithMockUser
+    void post_delete_FAILED_different() throws Exception {
+        String title = "테스트";
+        String body = "테스트입니다.";
+
+        when(postService.delete(any(),any()))
+                .thenThrow(new AppException(ErrorCode.INVALID_PERMISSION,ErrorCode.INVALID_PERMISSION.getMessage()));
+
+        mockMvc.perform(delete("/api/v1/posts/1")
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsBytes(new PostRequest(title, body))))
+                .andDo(print())
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    @DisplayName("포스트 삭제 실패3_데이터베이스 에러")
+    @WithMockUser
+    void post_delete_FAILED_db() throws Exception {
+        String title = "테스트";
+        String body = "테스트입니다.";
+
+        when(postService.delete(any(),any()))
+                .thenThrow(new AppException(ErrorCode.DATABASE_ERROR,ErrorCode.DATABASE_ERROR.getMessage()));
+
+        mockMvc.perform(delete("/api/v1/posts/1")
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsBytes(new PostRequest(title, body))))
+                .andDo(print())
+                .andExpect(status().isInternalServerError());
+    }
 }

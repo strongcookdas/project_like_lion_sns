@@ -36,4 +36,11 @@ public class PostController {
         PostResponse postResponse = postService.modify(userName, id, postRequest.getTitle(), postRequest.getBody());
         return ResponseEntity.ok().body(Response.of("SUCCESS", postResponse));
     }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Response> deletePost(@PathVariable Long id, Authentication authentication) {
+        String userName = authentication.getName();
+        PostResponse postResponse = postService.delete(userName, id);
+        return ResponseEntity.ok().body(Response.of("SUCCESS", postResponse));
+    }
 }
