@@ -7,12 +7,12 @@ import lombok.*;
 @Builder
 @Getter
 @Setter
-public class PostWriteResponse {
+public class PostResponse {
     private String message;
     private Long postId;
 
-    public static PostWriteResponse of(String message, Long postId){
-        return PostWriteResponse.builder()
+    public static PostResponse of(String message, Long postId){
+        return PostResponse.builder()
                 .message(message)
                 .postId(postId)
                 .build();

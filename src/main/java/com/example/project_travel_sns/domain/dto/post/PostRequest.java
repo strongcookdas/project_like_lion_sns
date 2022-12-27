@@ -7,7 +7,7 @@ import lombok.*;
 @Builder
 @Getter
 @Setter
-public class PostWriteRequest {
+public class PostRequest {
     private String title;
     private String body;
 }
