@@ -10,6 +10,8 @@ import com.example.project_travel_sns.repository.PostRepository;
 import com.example.project_travel_sns.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -83,5 +85,11 @@ public class PostService {
         postRepository.deleteById(deletePost.getId());
         PostResponse postResponse = PostResponse.of("포스트 삭제 완료", deletePost.getId());
         return postResponse;
+    }
+
+    public Page<PostGetResponse> getPosts(Pageable pageable) {
+        Page<Post> posts = postRepository.findAll(pageable);
+        Page<PostGetResponse> postGetResponses = PostGetResponse.toResponses(posts);
+        return postGetResponses;
     }
 }

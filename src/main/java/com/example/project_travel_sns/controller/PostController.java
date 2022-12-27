@@ -6,6 +6,11 @@ import com.example.project_travel_sns.domain.dto.post.PostRequest;
 import com.example.project_travel_sns.domain.dto.post.PostResponse;
 import com.example.project_travel_sns.service.PostService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
+import org.springframework.data.web.SortDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
@@ -21,6 +26,12 @@ public class PostController {
     public ResponseEntity<Response> getPost(@PathVariable Long id) {
         PostGetResponse postGetResponse = postService.getPost(id);
         return ResponseEntity.ok().body(Response.of("SUCCESS", postGetResponse));
+    }
+
+    @GetMapping
+    public ResponseEntity<Response<Page<PostGetResponse>>> getPosts(@PageableDefault(size = 20)@SortDefault(sort = "createdAt",direction = Sort.Direction.DESC)Pageable pageable){
+        Page<PostGetResponse> postGetResponses = postService.getPosts(pageable);
+        return ResponseEntity.ok().body(Response.of("SUCCESS",postGetResponses));
     }
 
     @PostMapping("")

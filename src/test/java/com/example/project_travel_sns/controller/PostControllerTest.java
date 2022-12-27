@@ -9,18 +9,25 @@ import com.example.project_travel_sns.service.PostService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.mapping.JpaMetamodelMappingContext;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithAnonymousUser;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
+
 import java.time.LocalDateTime;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -133,7 +140,7 @@ class PostControllerTest {
         String title = "테스트";
         String body = "테스트입니다.";
 
-        when(postService.modify(any(),any(),any(),any()))
+        when(postService.modify(any(), any(), any(), any()))
                 .thenReturn(new PostResponse(title, 1l));
 
         mockMvc.perform(put("/api/v1/posts/1")
@@ -143,6 +150,7 @@ class PostControllerTest {
                 .andDo(print())
                 .andExpect(status().isOk());
     }
+
     @Test
     @DisplayName("포스트 수정 실패1_인증")
     @WithAnonymousUser
@@ -150,8 +158,8 @@ class PostControllerTest {
         String title = "테스트";
         String body = "테스트입니다.";
 
-        when(postService.modify(any(),any(),any(),any()))
-                .thenThrow(new AppException(ErrorCode.INVALID_PERMISSION,ErrorCode.INVALID_PERMISSION.getMessage()));
+        when(postService.modify(any(), any(), any(), any()))
+                .thenThrow(new AppException(ErrorCode.INVALID_PERMISSION, ErrorCode.INVALID_PERMISSION.getMessage()));
 
         mockMvc.perform(put("/api/v1/posts/1")
                         .with(csrf())
@@ -168,8 +176,8 @@ class PostControllerTest {
         String title = "테스트";
         String body = "테스트입니다.";
 
-        when(postService.modify(any(),any(),any(),any()))
-                .thenThrow(new AppException(ErrorCode.INVALID_PERMISSION,ErrorCode.INVALID_PERMISSION.getMessage()));
+        when(postService.modify(any(), any(), any(), any()))
+                .thenThrow(new AppException(ErrorCode.INVALID_PERMISSION, ErrorCode.INVALID_PERMISSION.getMessage()));
 
         mockMvc.perform(put("/api/v1/posts/1")
                         .with(csrf())
@@ -186,8 +194,8 @@ class PostControllerTest {
         String title = "테스트";
         String body = "테스트입니다.";
 
-        when(postService.modify(any(),any(),any(),any()))
-                .thenThrow(new AppException(ErrorCode.DATABASE_ERROR,ErrorCode.DATABASE_ERROR.getMessage()));
+        when(postService.modify(any(), any(), any(), any()))
+                .thenThrow(new AppException(ErrorCode.DATABASE_ERROR, ErrorCode.DATABASE_ERROR.getMessage()));
 
         mockMvc.perform(put("/api/v1/posts/1")
                         .with(csrf())
@@ -196,6 +204,7 @@ class PostControllerTest {
                 .andDo(print())
                 .andExpect(status().isInternalServerError());
     }
+
     @Test
     @DisplayName("포스트 삭제 성공")
     @WithMockUser
@@ -203,7 +212,7 @@ class PostControllerTest {
         String title = "테스트";
         String body = "테스트입니다.";
 
-        when(postService.delete(any(),any()))
+        when(postService.delete(any(), any()))
                 .thenReturn(new PostResponse("포스트 삭제 완료", 1l));
 
         mockMvc.perform(delete("/api/v1/posts/1")
@@ -213,6 +222,7 @@ class PostControllerTest {
                 .andDo(print())
                 .andExpect(status().isOk());
     }
+
     @Test
     @DisplayName("포스트 삭제 실패1_인증")
     @WithAnonymousUser
@@ -220,8 +230,8 @@ class PostControllerTest {
         String title = "테스트";
         String body = "테스트입니다.";
 
-        when(postService.delete(any(),any()))
-                .thenThrow(new AppException(ErrorCode.INVALID_PERMISSION,ErrorCode.INVALID_PERMISSION.getMessage()));
+        when(postService.delete(any(), any()))
+                .thenThrow(new AppException(ErrorCode.INVALID_PERMISSION, ErrorCode.INVALID_PERMISSION.getMessage()));
 
         mockMvc.perform(delete("/api/v1/posts/1")
                         .with(csrf())
@@ -238,8 +248,8 @@ class PostControllerTest {
         String title = "테스트";
         String body = "테스트입니다.";
 
-        when(postService.delete(any(),any()))
-                .thenThrow(new AppException(ErrorCode.INVALID_PERMISSION,ErrorCode.INVALID_PERMISSION.getMessage()));
+        when(postService.delete(any(), any()))
+                .thenThrow(new AppException(ErrorCode.INVALID_PERMISSION, ErrorCode.INVALID_PERMISSION.getMessage()));
 
         mockMvc.perform(delete("/api/v1/posts/1")
                         .with(csrf())
@@ -256,8 +266,8 @@ class PostControllerTest {
         String title = "테스트";
         String body = "테스트입니다.";
 
-        when(postService.delete(any(),any()))
-                .thenThrow(new AppException(ErrorCode.DATABASE_ERROR,ErrorCode.DATABASE_ERROR.getMessage()));
+        when(postService.delete(any(), any()))
+                .thenThrow(new AppException(ErrorCode.DATABASE_ERROR, ErrorCode.DATABASE_ERROR.getMessage()));
 
         mockMvc.perform(delete("/api/v1/posts/1")
                         .with(csrf())
@@ -265,5 +275,26 @@ class PostControllerTest {
                         .content(objectMapper.writeValueAsBytes(new PostRequest(title, body))))
                 .andDo(print())
                 .andExpect(status().isInternalServerError());
+    }
+
+    @Test
+    @DisplayName("pageable 파라미터 검증")
+    @WithMockUser
+    void post_get_list_SUCCESS() throws Exception {
+        mockMvc.perform(get("/api/v1/posts")
+                        .with(csrf())
+                        .param("page", "0")
+                        .param("size", "3")
+                        .param("sort", "createdAt,desc"))
+                .andExpect(status().isOk());
+
+        ArgumentCaptor<Pageable> pageableArgumentCaptor = ArgumentCaptor.forClass(Pageable.class);
+
+        verify(postService).getPosts(pageableArgumentCaptor.capture());
+        PageRequest pageRequest = (PageRequest) pageableArgumentCaptor.getValue();
+
+        assertEquals(0, pageRequest.getPageNumber());
+        assertEquals(3, pageRequest.getPageSize());
+        assertEquals(Sort.by("createdAt","desc"), pageRequest.withSort(Sort.by("createdAt","desc")).getSort());
     }
 }

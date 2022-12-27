@@ -37,8 +37,8 @@ public class Post extends BaseEntity {
                 .userName(this.user.getUserName())
                 .title(this.title)
                 .body(this.body)
-                .createdAt(getCreateDate())
-                .lastModifiedAt(getModifiedDate())
+                .createdAt(getCreatedAt())
+                .lastModifiedAt(getModifiedAt())
                 .build();
     }
 }
