@@ -35,21 +35,21 @@ public class PostController {
     }
 
     @PostMapping("")
-    public ResponseEntity<Response> writePost(@RequestBody PostRequest postRequest, Authentication authentication) {
+    public ResponseEntity<Response> write(@RequestBody PostRequest postRequest, Authentication authentication) {
         String userName = authentication.getName();
         PostResponse postResponse = postService.write(userName, postRequest.getTitle(), postRequest.getBody());
         return ResponseEntity.ok().body(Response.of("SUCCESS", postResponse));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Response> modifyPost(@RequestBody PostRequest postRequest, @PathVariable Long id, Authentication authentication) {
+    public ResponseEntity<Response> modify(@RequestBody PostRequest postRequest, @PathVariable Long id, Authentication authentication) {
         String userName = authentication.getName();
         PostResponse postResponse = postService.modify(userName, id, postRequest.getTitle(), postRequest.getBody());
         return ResponseEntity.ok().body(Response.of("SUCCESS", postResponse));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Response> deletePost(@PathVariable Long id, Authentication authentication) {
+    public ResponseEntity<Response> delete(@PathVariable Long id, Authentication authentication) {
         String userName = authentication.getName();
         PostResponse postResponse = postService.delete(userName, id);
         return ResponseEntity.ok().body(Response.of("SUCCESS", postResponse));
