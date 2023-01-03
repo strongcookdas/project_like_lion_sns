@@ -30,17 +30,6 @@ public class Post extends BaseEntity {
                 .build();
     }
 
-    public PostGetResponse toResponse() {
-        return PostGetResponse.builder()
-                .id(this.id)
-                .userName(this.user.getUserName())
-                .title(this.title)
-                .body(this.body)
-                .createdAt(getCreatedAt())
-                .lastModifiedAt(getModifiedAt())
-                .build();
-    }
-
     public void modify(String title, String body) {
         this.title = title;
         this.body = body;

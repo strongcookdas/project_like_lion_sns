@@ -19,7 +19,18 @@ public class PostGetResponse {
     private LocalDateTime createdAt;
     private LocalDateTime lastModifiedAt;
 
-    public static Page<PostGetResponse> toResponses(Page<Post> posts) {
+    public static PostGetResponse of(Post post) {
+        return PostGetResponse.builder()
+                .id(post.getId())
+                .userName(post.getUser().getUserName())
+                .title(post.getTitle())
+                .body(post.getBody())
+                .createdAt(post.getCreatedAt())
+                .lastModifiedAt(post.getModifiedAt())
+                .build();
+    }
+
+    public static Page<PostGetResponse> listOf(Page<Post> posts) {
         Page<PostGetResponse> postGetResponses = posts.map(m -> PostGetResponse.builder()
                 .id(m.getId())
                 .title(m.getTitle())

@@ -42,7 +42,7 @@ public class PostService {
             throw new AppException(ErrorCode.POST_NOT_FOUND, ErrorCode.POST_NOT_FOUND.getMessage());
         });
         //포스트 응답 DTO 변환 후 리턴
-        PostGetResponse postGetResponse = findPost.toResponse();
+        PostGetResponse postGetResponse = PostGetResponse.of(findPost);
         return postGetResponse;
     }
 
@@ -88,7 +88,7 @@ public class PostService {
 
     public Page<PostGetResponse> getPosts(Pageable pageable) {
         Page<Post> posts = postRepository.findAll(pageable);
-        Page<PostGetResponse> postGetResponses = PostGetResponse.toResponses(posts);
+        Page<PostGetResponse> postGetResponses = PostGetResponse.listOf(posts);
         return postGetResponses;
     }
 }
