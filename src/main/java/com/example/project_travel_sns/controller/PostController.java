@@ -15,6 +15,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
+
 @RestController
 @RequestMapping("/api/v1/posts")
 @RequiredArgsConstructor
@@ -35,14 +37,14 @@ public class PostController {
     }
 
     @PostMapping("")
-    public ResponseEntity<Response> write(@RequestBody PostRequest postRequest, Authentication authentication) {
+    public ResponseEntity<Response> write(@Valid @RequestBody PostRequest postRequest, Authentication authentication) {
         String userName = authentication.getName();
         PostResponse postResponse = postService.write(userName, postRequest.getTitle(), postRequest.getBody());
         return ResponseEntity.ok().body(Response.of("SUCCESS", postResponse));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Response> modify(@RequestBody PostRequest postRequest, @PathVariable Long id, Authentication authentication) {
+    public ResponseEntity<Response> modify(@Valid @RequestBody PostRequest postRequest, @PathVariable Long id, Authentication authentication) {
         String userName = authentication.getName();
         PostResponse postResponse = postService.modify(userName, id, postRequest.getTitle(), postRequest.getBody());
         return ResponseEntity.ok().body(Response.of("SUCCESS", postResponse));
