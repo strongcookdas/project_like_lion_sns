@@ -16,7 +16,6 @@ import java.time.LocalDateTime;
 @MappedSuperclass
 @ToString
 @Getter
-@Setter
 public abstract class BaseEntity {
 
     @CreatedDate

@@ -60,8 +60,7 @@ public class PostService {
             throw new AppException(ErrorCode.INVALID_PERMISSION, ErrorCode.INVALID_PERMISSION.getMessage());
         }
         //포스트 수정
-        modifyPost.setTitle(title);
-        modifyPost.setBody(body);
+        modifyPost.modify(title,body);
         postRepository.saveAndFlush(modifyPost);
         //포스트 응답 DTO 변환 후 반환
         PostResponse postResponse = PostResponse.of("포스트 수정 완료", modifyPost.getId());

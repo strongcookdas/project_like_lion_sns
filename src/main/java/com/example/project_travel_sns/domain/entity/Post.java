@@ -9,7 +9,6 @@ import javax.persistence.*;
 @AllArgsConstructor
 @Builder
 @Entity
-@Setter
 @Getter
 public class Post extends BaseEntity {
     @Id
@@ -31,7 +30,7 @@ public class Post extends BaseEntity {
                 .build();
     }
 
-    public PostGetResponse toResponse(){
+    public PostGetResponse toResponse() {
         return PostGetResponse.builder()
                 .id(this.id)
                 .userName(this.user.getUserName())
@@ -40,5 +39,10 @@ public class Post extends BaseEntity {
                 .createdAt(getCreatedAt())
                 .lastModifiedAt(getModifiedAt())
                 .build();
+    }
+
+    public void modify(String title, String body) {
+        this.title = title;
+        this.body = body;
     }
 }
