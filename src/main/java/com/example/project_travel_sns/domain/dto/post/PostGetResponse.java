@@ -1,6 +1,7 @@
 package com.example.project_travel_sns.domain.dto.post;
 
 import com.example.project_travel_sns.domain.entity.Post;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;
 import org.springframework.data.domain.Page;
 
@@ -16,7 +17,9 @@ public class PostGetResponse {
     private String title;
     private String body;
     private String userName;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd' 'HH:mm:ss", timezone = "Asia/Seoul")
     private LocalDateTime createdAt;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd' 'HH:mm:ss", timezone = "Asia/Seoul")
     private LocalDateTime lastModifiedAt;
 
     public static PostGetResponse of(Post post) {
