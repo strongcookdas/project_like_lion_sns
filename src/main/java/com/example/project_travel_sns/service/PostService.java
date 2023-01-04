@@ -47,7 +47,7 @@ public class PostService {
         //유저 체크
         User findUser = AppUtil.findUser(userRepository, userName);
         //포스트 유저와 유처 비교
-        AppUtil.comparePostUser(modifyPost.getUser().getUserName(), findUser.getUserName());
+        AppUtil.compareUser(modifyPost.getUser().getUserName(), findUser.getUserName());
         //포스트 수정 후 저장
         modifyPost.modify(title, body);
         postRepository.saveAndFlush(modifyPost);
@@ -61,7 +61,7 @@ public class PostService {
         //유저 체크
         User findUser = AppUtil.findUser(userRepository, userName);
         //포스트 유저와 유처 비교
-        AppUtil.comparePostUser(deletePost.getUser().getUserName(), findUser.getUserName());
+        AppUtil.compareUser(deletePost.getUser().getUserName(), findUser.getUserName());
         //포스트 삭제 후 DTO 리턴
         postRepository.deleteById(deletePost.getId());
         return PostResponse.of("포스트 삭제 완료", deletePost.getId());
