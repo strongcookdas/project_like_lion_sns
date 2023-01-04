@@ -1,7 +1,6 @@
 package com.example.project_travel_sns.service;
 
 import com.example.project_travel_sns.domain.dto.post.PostGetResponse;
-import com.example.project_travel_sns.domain.dto.post.PostResponse;
 import com.example.project_travel_sns.domain.entity.Post;
 import com.example.project_travel_sns.domain.entity.User;
 import com.example.project_travel_sns.exception.AppException;
@@ -27,23 +26,23 @@ class PostServiceTest {
     UserRepository userRepository = mock(UserRepository.class);
 
     User user = User.builder()
-            .userId(1l)
+            .userId(1L)
             .userName("홍길동")
             .password("0000")
             .build();
     User user2 = User.builder()
-            .userId(2l)
+            .userId(2L)
             .userName("홍길동2")
             .password("0000")
             .build();
     Post post = Post.builder()
-            .id(1l)
+            .id(1L)
             .title("제목")
             .body("내용입니다.")
             .user(user)
             .build();
     Post modifyPost = Post.builder()
-            .id(1l)
+            .id(1L)
             .title("제목2")
             .body("내용입니다.2")
             .user(user)
@@ -79,7 +78,7 @@ class PostServiceTest {
                 .thenReturn(post);
 
         AppException exception = assertThrows(AppException.class, () -> postService.write("아무개", "테스트", "테스트입니다."));
-        assertEquals(ErrorCode.INVALID_PERMISSION, exception.getErrorCode());
+        assertEquals(ErrorCode.USERNAME_NOT_FOUND, exception.getErrorCode());
     }
 
     @Test
@@ -136,7 +135,7 @@ class PostServiceTest {
                 .thenReturn(Optional.empty());
 
         AppException exception = assertThrows(AppException.class, () -> postService.modify(user.getUserName(), post.getId(), modifyPost.getTitle(), modifyPost.getBody()));
-        assertEquals(ErrorCode.INVALID_PERMISSION, exception.getErrorCode());
+        assertEquals(ErrorCode.USERNAME_NOT_FOUND, exception.getErrorCode());
     }
     @Test
     @DisplayName("포스트 삭제 성공")
@@ -162,7 +161,7 @@ class PostServiceTest {
     }
 
     @Test
-    @DisplayName("포스트 수정 실패2_포스트 작성자와 유저가 다른 경우")
+    @DisplayName("포스트 삭제 실패2_포스트 작성자와 유저가 다른 경우")
     void post_delete_FAILED_different() {
         when(postRepository.findById(any()))
                 .thenReturn(Optional.of(post));
@@ -174,7 +173,7 @@ class PostServiceTest {
     }
 
     @Test
-    @DisplayName("포스트 수정 실패3_유저가 존재하지 않는 경우")
+    @DisplayName("포스트 삭제 실패3_유저가 존재하지 않는 경우")
     void post_delete_FAILED_not_found_userName() {
         when(postRepository.findById(any()))
                 .thenReturn(Optional.of(post));
@@ -182,6 +181,6 @@ class PostServiceTest {
                 .thenReturn(Optional.empty());
 
         AppException exception = assertThrows(AppException.class, () -> postService.delete(user.getUserName(), post.getId()));
-        assertEquals(ErrorCode.INVALID_PERMISSION, exception.getErrorCode());
+        assertEquals(ErrorCode.USERNAME_NOT_FOUND, exception.getErrorCode());
     }
 }
