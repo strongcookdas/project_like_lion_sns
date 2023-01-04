@@ -7,11 +7,11 @@ import com.example.project_travel_sns.exception.ErrorCode;
 import com.example.project_travel_sns.repository.PostRepository;
 import com.example.project_travel_sns.repository.UserRepository;
 
-public class PostUtil {
+public class AppUtil {
     //유저 체크
     public static User findUser(UserRepository userRepository, String userName) {
         return userRepository.findByUserName(userName).orElseThrow(() -> {
-            throw new AppException(ErrorCode.INVALID_PERMISSION, ErrorCode.INVALID_PERMISSION.getMessage());
+            throw new AppException(ErrorCode.USERNAME_NOT_FOUND, ErrorCode.USERNAME_NOT_FOUND.getMessage());
         });
     }
 
