@@ -1,6 +1,7 @@
 package com.example.project_travel_sns.controller;
 
 import com.example.project_travel_sns.domain.dto.Response;
+import com.example.project_travel_sns.domain.dto.comment.CommentModifyResponse;
 import com.example.project_travel_sns.domain.dto.comment.CommentRequest;
 import com.example.project_travel_sns.domain.dto.comment.CommentResponse;
 import com.example.project_travel_sns.service.CommentService;
@@ -21,5 +22,12 @@ public class CommentController {
         String userName = authentication.getName();
         CommentResponse commentResponse = commentService.write(userName, postId, commentRequest.getComment());
         return ResponseEntity.ok().body(Response.of("SUCCESS", commentResponse));
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<Response> modify(Authentication authentication, @PathVariable Long postId, @PathVariable Long id, @RequestBody CommentRequest commentRequest){
+        String userName = authentication.getName();
+        CommentModifyResponse commentModifyResponse = commentService.modify(userName,postId,id,commentRequest.getComment());
+        return ResponseEntity.ok().body(Response.of("SUCCESS", commentModifyResponse));
     }
 }

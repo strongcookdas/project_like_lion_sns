@@ -1,9 +1,11 @@
 package com.example.project_travel_sns.util.post;
 
+import com.example.project_travel_sns.domain.entity.Comment;
 import com.example.project_travel_sns.domain.entity.Post;
 import com.example.project_travel_sns.domain.entity.User;
 import com.example.project_travel_sns.exception.AppException;
 import com.example.project_travel_sns.exception.ErrorCode;
+import com.example.project_travel_sns.repository.CommentRepository;
 import com.example.project_travel_sns.repository.PostRepository;
 import com.example.project_travel_sns.repository.UserRepository;
 
@@ -23,9 +25,16 @@ public class AppUtil {
     }
 
     //포스트 유저와 유저 비교
-    public static void comparePostUser(String postUserName, String userName) {
-        if (!postUserName.equals(userName)) {
+    public static void compareUser(String compareName, String userName) {
+        if (!compareName.equals(userName)) {
             throw new AppException(ErrorCode.INVALID_PERMISSION, ErrorCode.INVALID_PERMISSION.getMessage());
         }
+    }
+
+    //댓글 체크
+    public static Comment findComment(CommentRepository commentRepository, Long id) {
+        return commentRepository.findById(id).orElseThrow(() -> {
+            throw new AppException(ErrorCode.COMMENT_NOT_FOUND, ErrorCode.COMMENT_NOT_FOUND.getMessage());
+        });
     }
 }

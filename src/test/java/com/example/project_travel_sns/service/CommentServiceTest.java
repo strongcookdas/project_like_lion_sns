@@ -33,6 +33,12 @@ class CommentServiceTest {
             .password("0000")
             .build();
 
+    User user2 = User.builder()
+            .userId(2L)
+            .userName("홍길동2")
+            .password("0000")
+            .build();
+
     Post post = Post.builder()
             .id(1L)
             .title("제목")
@@ -49,7 +55,7 @@ class CommentServiceTest {
 
     @BeforeEach
     void setUp() {
-        commentService = new CommentService(userRepository,postRepository,commentRepository);
+        commentService = new CommentService(userRepository, postRepository, commentRepository);
     }
 
     @Test
@@ -62,7 +68,7 @@ class CommentServiceTest {
         when(commentRepository.save(any()))
                 .thenReturn(comment);
 
-        assertDoesNotThrow(() -> commentService.write(user.getUserName(),post.getId(),comment.getComment()));
+        assertDoesNotThrow(() -> commentService.write(user.getUserName(), post.getId(), comment.getComment()));
     }
 
     @Test
@@ -75,7 +81,7 @@ class CommentServiceTest {
         when(commentRepository.save(any()))
                 .thenReturn(comment);
 
-        AppException exception = assertThrows(AppException.class, () -> commentService.write(user.getUserName(),post.getId(),comment.getComment()));
+        AppException exception = assertThrows(AppException.class, () -> commentService.write(user.getUserName(), post.getId(), comment.getComment()));
         assertEquals(ErrorCode.USERNAME_NOT_FOUND, exception.getErrorCode());
     }
 
@@ -89,7 +95,66 @@ class CommentServiceTest {
         when(commentRepository.save(any()))
                 .thenReturn(comment);
 
-        AppException exception = assertThrows(AppException.class, () -> commentService.write(user.getUserName(),post.getId(),comment.getComment()));
+        AppException exception = assertThrows(AppException.class, () -> commentService.write(user.getUserName(), post.getId(), comment.getComment()));
         assertEquals(ErrorCode.POST_NOT_FOUND, exception.getErrorCode());
+    }
+
+    @Test
+    @DisplayName("댓글 수정 성공")
+    void comment_modify_SUCCESS() {
+        when(userRepository.findByUserName(any()))
+                .thenReturn(Optional.of(user));
+        when(postRepository.findById(any()))
+                .thenReturn(Optional.of(post));
+        when(commentRepository.findById(any()))
+                .thenReturn(Optional.of(comment));
+        when(commentRepository.saveAndFlush(any()))
+                .thenReturn(comment);
+
+        assertDoesNotThrow(() -> commentService.modify(user.getUserName(), post.getId(), comment.getId(), comment.getComment()));
+    }
+
+    @Test
+    @DisplayName("댓글 수정 실패1_유저가 존재하지 않는 경우")
+    void comment_modify_FALID_user() {
+        when(userRepository.findByUserName(any()))
+                .thenReturn(Optional.empty());
+        when(postRepository.findById(any()))
+                .thenReturn(Optional.of(post));
+        when(commentRepository.saveAndFlush(any()))
+                .thenReturn(comment);
+
+        AppException exception = assertThrows(AppException.class, () -> commentService.modify(user.getUserName(), post.getId(), comment.getId(), comment.getComment()));
+        assertEquals(ErrorCode.USERNAME_NOT_FOUND, exception.getErrorCode());
+    }
+
+    @Test
+    @DisplayName("댓글 수정 실패2_포스트가 없는 경우")
+    void comment_modify_FALID_post() {
+        when(userRepository.findByUserName(any()))
+                .thenReturn(Optional.of(user));
+        when(postRepository.findById(any()))
+                .thenReturn(Optional.empty());
+        when(commentRepository.saveAndFlush(any()))
+                .thenReturn(comment);
+
+        AppException exception = assertThrows(AppException.class, () -> commentService.modify(user.getUserName(), post.getId(), comment.getId(), comment.getComment()));
+        assertEquals(ErrorCode.POST_NOT_FOUND, exception.getErrorCode());
+    }
+
+    @Test
+    @DisplayName("댓글 수정 실패3_작성자 불일치인 경우")
+    void comment_modify_FALID_different() {
+        when(userRepository.findByUserName(any()))
+                .thenReturn(Optional.of(user2));
+        when(postRepository.findById(any()))
+                .thenReturn(Optional.of(post));
+        when(commentRepository.findById(any()))
+                .thenReturn(Optional.of(comment));
+        when(commentRepository.saveAndFlush(any()))
+                .thenReturn(comment);
+
+        AppException exception = assertThrows(AppException.class, () -> commentService.modify(user2.getUserName(), post.getId(), comment.getId(), comment.getComment()));
+        assertEquals(ErrorCode.INVALID_PERMISSION, exception.getErrorCode());
     }
 }

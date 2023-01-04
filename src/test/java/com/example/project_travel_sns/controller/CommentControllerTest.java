@@ -1,5 +1,6 @@
 package com.example.project_travel_sns.controller;
 
+import com.example.project_travel_sns.domain.dto.comment.CommentModifyResponse;
 import com.example.project_travel_sns.domain.dto.comment.CommentRequest;
 import com.example.project_travel_sns.domain.dto.comment.CommentResponse;
 import com.example.project_travel_sns.domain.entity.Comment;
@@ -14,6 +15,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.jpa.mapping.JpaMetamodelMappingContext;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithAnonymousUser;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -24,6 +26,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -48,6 +51,15 @@ class CommentControllerTest {
             .createdAt(LocalDateTime.now())
             .build();
 
+    CommentModifyResponse commentModifyResponse = CommentModifyResponse.builder()
+            .id(1L)
+            .comment("테스트입니다.")
+            .userName("홍길동")
+            .postId(1L)
+            .createdAt(LocalDateTime.now())
+            .lastModifiedAt(LocalDateTime.now())
+            .build();
+
     @Test
     @DisplayName("댓글 작성 성공")
     @WithMockUser
@@ -66,7 +78,7 @@ class CommentControllerTest {
 
     @Test
     @DisplayName("댓글 작성 실패1_로그인을 하지 않은 경우")
-    @WithMockUser
+    @WithAnonymousUser
     void comment_write_FAILD_login() throws Exception {
         when(commentService.write(any(), any(), any()))
                 .thenThrow(new AppException(ErrorCode.INVALID_PERMISSION, ErrorCode.INVALID_PERMISSION.getMessage()));
@@ -92,5 +104,68 @@ class CommentControllerTest {
                         .content(objectMapper.writeValueAsBytes(new CommentRequest("테스트입니다."))))
                 .andDo(print())
                 .andExpect(status().isNotFound());
+    }
+
+    @Test
+    @DisplayName("댓글 수정 성공")
+    @WithMockUser
+    void comment_modify_SUCCESS() throws Exception {
+
+        when(commentService.modify("홍길동", 1L, 1L, "테스트입니다."))
+                .thenReturn(commentModifyResponse);
+
+        mockMvc.perform(put("/api/v1/posts/1/comments/1")
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsBytes(new CommentRequest("테스트입니다."))))
+                .andDo(print())
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    @DisplayName("댓글 수정 실패1_로그인을 하지 않은 경우")
+    @WithAnonymousUser
+    void comment_modify_FAILD_login() throws Exception {
+        when(commentService.modify("홍길동", 1L, 1L, "테스트입니다."))
+                .thenThrow(new AppException(ErrorCode.USERNAME_NOT_FOUND, ErrorCode.USERNAME_NOT_FOUND.getMessage()));
+
+        mockMvc.perform(put("/api/v1/posts/1/comments/1")
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsBytes(new CommentRequest("테스트입니다."))))
+                .andDo(print())
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    @DisplayName("댓글 작성 실패2_작성자 불일치인 경우")
+    @WithMockUser
+    void comment_modify_FAIL_different() throws Exception {
+
+        when(commentService.modify(any(), any(), any(), any()))
+                .thenThrow(new AppException(ErrorCode.INVALID_PERMISSION, ErrorCode.INVALID_PERMISSION.getMessage()));
+
+        mockMvc.perform(put("/api/v1/posts/1/comments/1")
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsBytes(new CommentRequest("테스트입니다."))))
+                .andDo(print())
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    @DisplayName("댓글 작성 실패3_DB 에러인 경우")
+    @WithMockUser
+    void comment_modify_FAIL_db() throws Exception {
+
+        when(commentService.modify(any(), any(), any(), any()))
+                .thenThrow(new AppException(ErrorCode.DATABASE_ERROR, ErrorCode.DATABASE_ERROR.getMessage()));
+
+        mockMvc.perform(put("/api/v1/posts/1/comments/1")
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsBytes(new CommentRequest("테스트입니다."))))
+                .andDo(print())
+                .andExpect(status().isInternalServerError());
     }
 }
