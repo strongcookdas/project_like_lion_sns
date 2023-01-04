@@ -13,6 +13,7 @@ import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -296,5 +297,33 @@ class PostControllerTest {
         assertEquals(0, pageRequest.getPageNumber());
         assertEquals(3, pageRequest.getPageSize());
         assertEquals(Sort.by("createdAt","desc"), pageRequest.withSort(Sort.by("createdAt","desc")).getSort());
+    }
+
+    @Test
+    @DisplayName("마이피드 목록 성공")
+    @WithMockUser
+    void post_my_SUCCESS() throws Exception {
+
+        when(postService.getMyPosts(any(),any())).thenReturn(Page.empty());
+
+        mockMvc.perform(get("/api/v1/posts/my")
+                        .with(csrf()))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    @DisplayName("마이피드 목록 실패_로그인 실패")
+    @WithAnonymousUser
+    void post_my_FAILED_login() throws Exception {
+
+        when(postService.getMyPosts(any(),any()))
+                .thenThrow(new AppException(ErrorCode.INVALID_PERMISSION, ErrorCode.INVALID_PERMISSION.getMessage()));
+
+        mockMvc.perform(get("/api/v1/posts/my")
+                        .with(csrf())
+                        .param("page", "0")
+                        .param("size", "20")
+                        .param("sort", "createdAt,desc"))
+                .andExpect(status().isUnauthorized());
     }
 }

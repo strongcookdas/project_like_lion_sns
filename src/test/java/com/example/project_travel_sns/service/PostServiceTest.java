@@ -79,7 +79,7 @@ class PostServiceTest {
                 .thenReturn(post);
 
         AppException exception = assertThrows(AppException.class, () -> postService.write("아무개", "테스트", "테스트입니다."));
-        assertEquals(ErrorCode.USERNAME_NOT_FOUND, exception.getErrorCode());
+        assertEquals(ErrorCode.INVALID_PERMISSION, exception.getErrorCode());
     }
 
     @Test

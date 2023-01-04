@@ -23,6 +23,10 @@ public class SecurityConfig {
             "/api/v1/hello",
             "/api/v1/users/**"
     };
+
+    private String[] NOT_PERMIT_URL = {
+            "/api/v1/posts/my"
+    };
     private String[] SWAGGER = {
             /* swagger v2 */
             "/v2/api-docs",
@@ -46,6 +50,7 @@ public class SecurityConfig {
                 .authorizeRequests()
                 .antMatchers(PERMIT_URL).permitAll()
                 .antMatchers(SWAGGER).permitAll()
+                .antMatchers(NOT_PERMIT_URL).authenticated()
                 .antMatchers(HttpMethod.GET).permitAll()
                 .anyRequest().authenticated()
                 .and()

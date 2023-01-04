@@ -31,9 +31,16 @@ public class PostController {
     }
 
     @GetMapping
-    public ResponseEntity<Response<Page<PostGetResponse>>> getPosts(@PageableDefault(size = 20)@SortDefault(sort = "createdAt",direction = Sort.Direction.DESC)Pageable pageable){
+    public ResponseEntity<Response<Page<PostGetResponse>>> getPosts(@PageableDefault(size = 20) @SortDefault(sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
         Page<PostGetResponse> postGetResponses = postService.getPosts(pageable);
-        return ResponseEntity.ok().body(Response.of("SUCCESS",postGetResponses));
+        return ResponseEntity.ok().body(Response.of("SUCCESS", postGetResponses));
+    }
+
+    @GetMapping("/my")
+    public ResponseEntity<Response> getMyPosts(@PageableDefault(size = 20) @SortDefault(sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable, Authentication authentication) {
+        String userName = authentication.getName();
+        Page<PostGetResponse> postGetResponses = postService.getMyPosts(pageable, userName);
+        return ResponseEntity.ok().body(Response.of("SUCCESS", postGetResponses));
     }
 
     @PostMapping("")
@@ -56,4 +63,5 @@ public class PostController {
         PostResponse postResponse = postService.delete(userName, id);
         return ResponseEntity.ok().body(Response.of("SUCCESS", postResponse));
     }
+
 }
