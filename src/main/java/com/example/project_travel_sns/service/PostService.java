@@ -6,7 +6,7 @@ import com.example.project_travel_sns.domain.entity.Post;
 import com.example.project_travel_sns.domain.entity.User;
 import com.example.project_travel_sns.repository.PostRepository;
 import com.example.project_travel_sns.repository.UserRepository;
-import com.example.project_travel_sns.util.post.PostUtil;
+import com.example.project_travel_sns.util.post.AppUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -26,7 +26,7 @@ public class PostService {
 
     public PostResponse write(String userName, String title, String body) {
         //유저 체크
-        User findUser = PostUtil.findUser(userRepository, userName);
+        User findUser = AppUtil.findUser(userRepository, userName);
         //포스트 저장
         Post savedPost = Post.of(title, body, findUser);
         savedPost = postRepository.save(savedPost);
@@ -36,18 +36,18 @@ public class PostService {
 
     public PostGetResponse getPost(Long id) {
         //포스트 체크
-        Post findPost = PostUtil.findPost(postRepository, id);
+        Post findPost = AppUtil.findPost(postRepository, id);
         //포스트 응답 DTO 변환 후 리턴
         return PostGetResponse.of(findPost);
     }
 
     public PostResponse modify(String userName, Long id, String title, String body) {
         //포스트 체크
-        Post modifyPost = PostUtil.findPost(postRepository, id);
+        Post modifyPost = AppUtil.findPost(postRepository, id);
         //유저 체크
-        User findUser = PostUtil.findUser(userRepository, userName);
+        User findUser = AppUtil.findUser(userRepository, userName);
         //포스트 유저와 유처 비교
-        PostUtil.comparePostUser(modifyPost.getUser().getUserName(), findUser.getUserName());
+        AppUtil.comparePostUser(modifyPost.getUser().getUserName(), findUser.getUserName());
         //포스트 수정 후 저장
         modifyPost.modify(title, body);
         postRepository.saveAndFlush(modifyPost);
@@ -57,11 +57,11 @@ public class PostService {
 
     public PostResponse delete(String userName, Long id) {
         //포스트 체크
-        Post deletePost = PostUtil.findPost(postRepository, id);
+        Post deletePost = AppUtil.findPost(postRepository, id);
         //유저 체크
-        User findUser = PostUtil.findUser(userRepository, userName);
+        User findUser = AppUtil.findUser(userRepository, userName);
         //포스트 유저와 유처 비교
-        PostUtil.comparePostUser(deletePost.getUser().getUserName(), findUser.getUserName());
+        AppUtil.comparePostUser(deletePost.getUser().getUserName(), findUser.getUserName());
         //포스트 삭제 후 DTO 리턴
         postRepository.deleteById(deletePost.getId());
         return PostResponse.of("포스트 삭제 완료", deletePost.getId());
@@ -75,7 +75,7 @@ public class PostService {
 
     public Page<PostGetResponse> getMyPosts(Pageable pageable, String userName) {
         //유저 체크
-        User findUser = PostUtil.findUser(userRepository, userName);
+        User findUser = AppUtil.findUser(userRepository, userName);
         //포스트 불러오기
         List<Post> posts = findUser.getMyPosts();
         //List -> Page 변환
