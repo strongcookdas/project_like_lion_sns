@@ -3,6 +3,7 @@ package com.example.project_travel_sns.domain.dto.comment;
 import com.example.project_travel_sns.domain.entity.Comment;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;
+import org.springframework.data.domain.Page;
 
 import java.time.LocalDateTime;
 
@@ -27,5 +28,16 @@ public class CommentResponse {
                 .postId(comment.getPost().getId())
                 .createdAt(comment.getCreatedAt())
                 .build();
+    }
+
+    public static Page<CommentResponse> listOf(Page<Comment> comments) {
+        Page<CommentResponse> commentResponses = comments.map(m -> CommentResponse.builder()
+                .id(m.getId())
+                .comment(m.getComment())
+                .userName(m.getUser().getUserName())
+                .postId(m.getPost().getId())
+                .createdAt(m.getCreatedAt())
+                .build());
+        return commentResponses;
     }
 }

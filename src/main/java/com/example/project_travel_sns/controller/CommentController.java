@@ -7,6 +7,11 @@ import com.example.project_travel_sns.domain.dto.comment.CommentRequest;
 import com.example.project_travel_sns.domain.dto.comment.CommentResponse;
 import com.example.project_travel_sns.service.CommentService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
+import org.springframework.data.web.SortDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
@@ -17,6 +22,12 @@ import org.springframework.web.bind.annotation.*;
 public class CommentController {
 
     private final CommentService commentService;
+
+    @GetMapping
+    public ResponseEntity<Response> getComments(@PageableDefault(size = 10) @SortDefault(sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable, @PathVariable Long postId){
+        Page<CommentResponse> commentResponses = commentService.getComments(pageable,postId);
+        return ResponseEntity.ok().body(Response.of("SUCCESS",commentResponses));
+    }
 
     @PostMapping
     public ResponseEntity<Response> write(Authentication authentication, @PathVariable Long postId, @RequestBody CommentRequest commentRequest) {

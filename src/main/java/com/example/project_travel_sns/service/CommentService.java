@@ -11,6 +11,8 @@ import com.example.project_travel_sns.repository.PostRepository;
 import com.example.project_travel_sns.repository.UserRepository;
 import com.example.project_travel_sns.util.post.AppUtil;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -61,5 +63,13 @@ public class CommentService {
         commentRepository.delete(findComment);
         //DTO 리턴
         return CommentDeleteResponse.of("댓글 삭제 완료", findComment.getId());
+    }
+
+    public Page<CommentResponse> getComments(Pageable pageable, Long postId) {
+        //포스트 체크
+        Post findPost = AppUtil.findPost(postRepository, postId);
+        //댓글 찾기
+        Page<Comment> comments = commentRepository.findByPost(pageable, findPost);
+        return CommentResponse.listOf(comments);
     }
 }
