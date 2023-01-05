@@ -63,7 +63,7 @@ public class PostService {
         //포스트 유저와 유처 비교
         AppUtil.compareUser(deletePost.getUser().getUserName(), findUser.getUserName());
         //포스트 삭제 후 DTO 리턴
-        postRepository.deleteById(deletePost.getId());
+        postRepository.delete(deletePost);
         return PostResponse.of("포스트 삭제 완료", deletePost.getId());
     }
 

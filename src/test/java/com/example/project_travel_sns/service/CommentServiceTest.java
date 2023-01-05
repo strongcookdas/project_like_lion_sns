@@ -106,7 +106,7 @@ class CommentServiceTest {
                 .thenReturn(Optional.of(user));
         when(postRepository.findById(any()))
                 .thenReturn(Optional.of(post));
-        when(commentRepository.findById(any()))
+        when(commentRepository.findByPostIdAndId(any(), any()))
                 .thenReturn(Optional.of(comment));
         when(commentRepository.saveAndFlush(any()))
                 .thenReturn(comment);
@@ -149,12 +149,81 @@ class CommentServiceTest {
                 .thenReturn(Optional.of(user2));
         when(postRepository.findById(any()))
                 .thenReturn(Optional.of(post));
-        when(commentRepository.findById(any()))
+        when(commentRepository.findByPostIdAndId(any(), any()))
                 .thenReturn(Optional.of(comment));
         when(commentRepository.saveAndFlush(any()))
                 .thenReturn(comment);
 
         AppException exception = assertThrows(AppException.class, () -> commentService.modify(user2.getUserName(), post.getId(), comment.getId(), comment.getComment()));
+        assertEquals(ErrorCode.INVALID_PERMISSION, exception.getErrorCode());
+    }
+
+    @Test
+    @DisplayName("댓글 삭제 성공")
+    void comment_delete_SUCCESS() {
+        when(userRepository.findByUserName(any()))
+                .thenReturn(Optional.of(user));
+        when(postRepository.findById(any()))
+                .thenReturn(Optional.of(post));
+        when(commentRepository.findByPostIdAndId(any(), any()))
+                .thenReturn(Optional.of(comment));
+
+        assertDoesNotThrow(() -> commentService.delete(user.getUserName(), post.getId(), comment.getId()));
+    }
+
+    @Test
+    @DisplayName("댓글 삭제 실패1_유저가 존재하지 않는 경우")
+    void comment_delete_FALID_user() {
+        when(userRepository.findByUserName(any()))
+                .thenReturn(Optional.empty());
+        when(postRepository.findById(any()))
+                .thenReturn(Optional.of(post));
+        when(commentRepository.findByPostIdAndId(any(), any()))
+                .thenReturn(Optional.of(comment));
+
+        AppException exception = assertThrows(AppException.class, () -> commentService.delete(user.getUserName(), post.getId(), comment.getId()));
+        assertEquals(ErrorCode.USERNAME_NOT_FOUND, exception.getErrorCode());
+    }
+
+    @Test
+    @DisplayName("댓글 삭제 실패2_포스트가 존재하지 않는 경우")
+    void comment_delete_FALID_post() {
+        when(userRepository.findByUserName(any()))
+                .thenReturn(Optional.of(user));
+        when(postRepository.findById(any()))
+                .thenReturn(Optional.empty());
+        when(commentRepository.findByPostIdAndId(any(), any()))
+                .thenReturn(Optional.of(comment));
+
+        AppException exception = assertThrows(AppException.class, () -> commentService.delete(user.getUserName(), post.getId(), comment.getId()));
+        assertEquals(ErrorCode.POST_NOT_FOUND, exception.getErrorCode());
+    }
+
+    @Test
+    @DisplayName("댓글 삭제 실패3_댓글이 존재하지 않는 경우")
+    void comment_delete_FALID_comment() {
+        when(userRepository.findByUserName(any()))
+                .thenReturn(Optional.of(user));
+        when(postRepository.findById(any()))
+                .thenReturn(Optional.of(post));
+        when(commentRepository.findByPostIdAndId(any(), any()))
+                .thenReturn(Optional.empty());
+
+        AppException exception = assertThrows(AppException.class, () -> commentService.delete(user.getUserName(), post.getId(), comment.getId()));
+        assertEquals(ErrorCode.COMMENT_NOT_FOUND, exception.getErrorCode());
+    }
+
+    @Test
+    @DisplayName("댓글 삭제 실패4_작성자가 불인치인 경우")
+    void comment_delete_FALID_different() {
+        when(userRepository.findByUserName(any()))
+                .thenReturn(Optional.of(user2));
+        when(postRepository.findById(any()))
+                .thenReturn(Optional.of(post));
+        when(commentRepository.findByPostIdAndId(any(), any()))
+                .thenReturn(Optional.of(comment));
+
+        AppException exception = assertThrows(AppException.class, () -> commentService.delete(user2.getUserName(), post.getId(), comment.getId()));
         assertEquals(ErrorCode.INVALID_PERMISSION, exception.getErrorCode());
     }
 }

@@ -20,7 +20,7 @@ public class User {
     private String userName;
     private String password;
 
-    @OneToMany(mappedBy = "user")
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
     private List<Post> myPosts;
 
     public static User of(String userName, String password) {

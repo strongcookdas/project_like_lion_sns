@@ -1,5 +1,6 @@
 package com.example.project_travel_sns.controller;
 
+import com.example.project_travel_sns.domain.dto.comment.CommentDeleteResponse;
 import com.example.project_travel_sns.domain.dto.comment.CommentModifyResponse;
 import com.example.project_travel_sns.domain.dto.comment.CommentRequest;
 import com.example.project_travel_sns.domain.dto.comment.CommentResponse;
@@ -25,8 +26,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -138,7 +138,7 @@ class CommentControllerTest {
     }
 
     @Test
-    @DisplayName("댓글 작성 실패2_작성자 불일치인 경우")
+    @DisplayName("댓글 수정 실패2_작성자 불일치인 경우")
     @WithMockUser
     void comment_modify_FAIL_different() throws Exception {
 
@@ -154,7 +154,7 @@ class CommentControllerTest {
     }
 
     @Test
-    @DisplayName("댓글 작성 실패3_DB 에러인 경우")
+    @DisplayName("댓글 수정 실패3_DB 에러인 경우")
     @WithMockUser
     void comment_modify_FAIL_db() throws Exception {
 
@@ -165,6 +165,79 @@ class CommentControllerTest {
                         .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsBytes(new CommentRequest("테스트입니다."))))
+                .andDo(print())
+                .andExpect(status().isInternalServerError());
+    }
+
+    @Test
+    @DisplayName("댓글 삭제 성공")
+    @WithMockUser
+    void comment_delete_SUCCESS() throws Exception {
+
+        when(commentService.delete("홍길동", 1L, 1L))
+                .thenReturn(new CommentDeleteResponse("댓글 삭제 왼료", 1L));
+
+        mockMvc.perform(delete("/api/v1/posts/1/comments/1")
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andDo(print())
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    @DisplayName("댓글 삭제 실패1_유저가 없는 경우")
+    @WithMockUser
+    void comment_delete_FAILD_user() throws Exception {
+        when(commentService.delete(any(), any(), any()))
+                .thenThrow(new AppException(ErrorCode.USERNAME_NOT_FOUND, ErrorCode.USERNAME_NOT_FOUND.getMessage()));
+
+        mockMvc.perform(delete("/api/v1/posts/1/comments/1")
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andDo(print())
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    @DisplayName("댓글 삭제 실패1_포스트가 없는 경우")
+    @WithMockUser
+    void comment_delete_FAILD_post() throws Exception {
+        when(commentService.delete(any(), any(), any()))
+                .thenThrow(new AppException(ErrorCode.POST_NOT_FOUND, ErrorCode.POST_NOT_FOUND.getMessage()));
+
+        mockMvc.perform(delete("/api/v1/posts/1/comments/1")
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andDo(print())
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    @DisplayName("댓글 삭제 실패3_작성자 불일치인 경우")
+    @WithMockUser
+    void comment_delete_FAILD_different() throws Exception {
+
+        when(commentService.delete(any(), any(), any()))
+                .thenThrow(new AppException(ErrorCode.INVALID_PERMISSION, ErrorCode.INVALID_PERMISSION.getMessage()));
+
+        mockMvc.perform(delete("/api/v1/posts/1/comments/1")
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andDo(print())
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    @DisplayName("댓글 삭제 실패4_DB에러인 경우")
+    @WithMockUser
+    void comment_delete_FAILD_db() throws Exception {
+
+        when(commentService.delete(any(), any(), any()))
+                .thenThrow(new AppException(ErrorCode.DATABASE_ERROR, ErrorCode.DATABASE_ERROR.getMessage()));
+
+        mockMvc.perform(delete("/api/v1/posts/1/comments/1")
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isInternalServerError());
     }

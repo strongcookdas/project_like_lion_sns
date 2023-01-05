@@ -1,5 +1,6 @@
 package com.example.project_travel_sns.service;
 
+import com.example.project_travel_sns.domain.dto.comment.CommentDeleteResponse;
 import com.example.project_travel_sns.domain.dto.comment.CommentModifyResponse;
 import com.example.project_travel_sns.domain.dto.comment.CommentResponse;
 import com.example.project_travel_sns.domain.entity.Comment;
@@ -38,12 +39,27 @@ public class CommentService {
         //포스트 체크
         Post findPost = AppUtil.findPost(postRepository, postId);
         //댓글 체크
-        Comment findComment = AppUtil.findComment(commentRepository, id);
+        Comment findComment = AppUtil.findComment(commentRepository, postId, id);
         //작성자 체크
         AppUtil.compareUser(findComment.getUser().getUserName(), findUser.getUserName());
         //댓글 수정
         findComment.modify(comment);
         commentRepository.saveAndFlush(findComment);
         return CommentModifyResponse.of(findComment);
+    }
+
+    public CommentDeleteResponse delete(String userName, Long postId, Long id) {
+        //유저 체크
+        User findUser = AppUtil.findUser(userRepository, userName);
+        //포스트 체크
+        Post findPost = AppUtil.findPost(postRepository, postId);
+        //댓글 체크
+        Comment findComment = AppUtil.findComment(commentRepository, postId, id);
+        //작성자 비교
+        AppUtil.compareUser(findComment.getUser().getUserName(), userName);
+        //삭제
+        commentRepository.delete(findComment);
+        //DTO 리턴
+        return CommentDeleteResponse.of("댓글 삭제 완료", findComment.getId());
     }
 }

@@ -1,6 +1,7 @@
 package com.example.project_travel_sns.controller;
 
 import com.example.project_travel_sns.domain.dto.Response;
+import com.example.project_travel_sns.domain.dto.comment.CommentDeleteResponse;
 import com.example.project_travel_sns.domain.dto.comment.CommentModifyResponse;
 import com.example.project_travel_sns.domain.dto.comment.CommentRequest;
 import com.example.project_travel_sns.domain.dto.comment.CommentResponse;
@@ -29,5 +30,12 @@ public class CommentController {
         String userName = authentication.getName();
         CommentModifyResponse commentModifyResponse = commentService.modify(userName,postId,id,commentRequest.getComment());
         return ResponseEntity.ok().body(Response.of("SUCCESS", commentModifyResponse));
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Response> delete(Authentication authentication, @PathVariable Long postId, @PathVariable Long id){
+        String userName = authentication.getName();
+        CommentDeleteResponse commentDeleteResponse = commentService.delete(userName,postId,id);
+        return ResponseEntity.ok().body(Response.of("SUCCESS",commentDeleteResponse));
     }
 }

@@ -32,8 +32,8 @@ public class AppUtil {
     }
 
     //댓글 체크
-    public static Comment findComment(CommentRepository commentRepository, Long id) {
-        return commentRepository.findById(id).orElseThrow(() -> {
+    public static Comment findComment(CommentRepository commentRepository, Long postId, Long commentId) {
+        return commentRepository.findByPostIdAndId(postId, commentId).orElseThrow(() -> {
             throw new AppException(ErrorCode.COMMENT_NOT_FOUND, ErrorCode.COMMENT_NOT_FOUND.getMessage());
         });
     }
