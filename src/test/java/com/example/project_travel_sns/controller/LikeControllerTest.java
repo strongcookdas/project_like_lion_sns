@@ -83,4 +83,19 @@ class LikeControllerTest {
                 .andDo(print())
                 .andExpect(status().isNotFound());
     }
+
+    //좋아요 취소 성공
+    @Test
+    @DisplayName("좋아요 취소 성공")
+    @WithMockUser
+    void like_cancel_SUCCESS() throws Exception {
+        when(likeService.like(any(), any()))
+                .thenReturn(new LikeResponse("좋아요를 취소했습니다."));
+
+        mockMvc.perform(post("/api/v1/posts/1/likes")
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andDo(print())
+                .andExpect(status().isOk());
+    }
 }

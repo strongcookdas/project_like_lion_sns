@@ -92,4 +92,17 @@ class LikeServiceTest {
         AppException exception = assertThrows(AppException.class, () -> likeService.like(user.getUserName(), post.getId()));
         assertEquals(ErrorCode.POST_NOT_FOUND, exception.getErrorCode());
     }
+    //좋아요 취소 성공
+    @Test
+    @DisplayName("좋아요 취소 성공")
+    void like_cancell_SUCCESS() {
+        when(userRepository.findByUserName(any()))
+                .thenReturn(Optional.of(user));
+        when(postRepository.findById(any()))
+                .thenReturn(Optional.of(post));
+        when(likeRepository.findByPostAndUser(any(),any()))
+                .thenReturn(Optional.of(like));
+
+        assertDoesNotThrow(() -> likeService.like(user.getUserName(), post.getId()));
+    }
 }

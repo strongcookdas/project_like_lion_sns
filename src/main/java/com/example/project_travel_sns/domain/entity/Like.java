@@ -26,7 +26,7 @@ public class Like extends BaseEntity {
     @JoinColumn(name = "postId")
     private Post post;
 
-    public static Like of(User user, Post post){
+    public static Like of(User user, Post post) {
         return Like.builder()
                 .user(user)
                 .post(post)

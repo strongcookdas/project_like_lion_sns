@@ -32,6 +32,9 @@ public class Post extends BaseEntity {
     @OneToMany(mappedBy = "post", fetch = FetchType.LAZY, orphanRemoval = true)
     private List<Comment> comments;
 
+    @OneToMany(mappedBy = "post", fetch = FetchType.LAZY, orphanRemoval = true)
+    private List<Like> likes;
+
     public static Post of(String title, String body, User user) {
         return Post.builder()
                 .title(title)
