@@ -5,12 +5,10 @@ import com.example.project_travel_sns.domain.dto.exception.ErrorResponse;
 import com.example.project_travel_sns.exception.ErrorCode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.stereotype.Component;
 
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -18,19 +16,25 @@ import java.io.IOException;
 @Component
 @Slf4j
 public class AuthenticationManager implements AuthenticationEntryPoint {
-
-    @Autowired
-    private ObjectMapper objectMapper;
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Override
-    public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) throws IOException, ServletException {
-        log.error(ErrorCode.INVALID_TOKEN.getMessage());
-        response.setStatus(ErrorCode.INVALID_TOKEN.getHttpStatus().value());
+    public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) throws IOException {
+        String exception = (String) request.getAttribute("exception");
+        if (exception != null) {
+            log.error(ErrorCode.EXPIRE_TOKEN.getMessage());
+            setResponse(ErrorCode.EXPIRE_TOKEN, response);
+        } else {
+            log.error(ErrorCode.INVALID_TOKEN.getMessage());
+            setResponse(ErrorCode.INVALID_TOKEN, response);
+        }
+    }
+
+    private void setResponse(ErrorCode errorCode, HttpServletResponse response) throws IOException {
+        response.setStatus(errorCode.getHttpStatus().value());
         response.setContentType("application/json");
         response.setCharacterEncoding("utf-8");
-        ErrorResponse errorResponse = ErrorResponse.of(ErrorCode.INVALID_TOKEN.name(), ErrorCode.INVALID_TOKEN.getMessage());
-        Response resultResponse = Response.of("ERROR", errorResponse);
-        String json = objectMapper.writeValueAsString(resultResponse);
-        response.getWriter().write(json);
+        Response resultResponse = Response.of("ERROR", ErrorResponse.of(errorCode.name(), errorCode.getMessage()));
+        response.getWriter().write(objectMapper.writeValueAsString(resultResponse));
     }
 }

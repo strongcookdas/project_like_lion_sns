@@ -1,31 +1,26 @@
 package com.example.project_travel_sns.configuration.security.utils;
 
+import com.example.project_travel_sns.exception.ErrorCode;
 import io.jsonwebtoken.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.Date;
 import java.util.List;
 
 @Slf4j
 public class JwtUtil {
 
-    public static boolean isValidToken(String token, String key) {
-        String userName = null;
+    public static boolean isValidToken(HttpServletRequest request, String token, String key) {
         try {
             Jwts.parser().setSigningKey(key).parseClaimsJws(token);
             return true;
         } catch (ExpiredJwtException e) {
-            log.error(e.getMessage());
-        } catch (UnsupportedJwtException e) {
-            log.error(e.getMessage());
-        } catch (MalformedJwtException e) {
-            log.error(e.getMessage());
-        } catch (SignatureException e) {
-            log.error(e.getMessage());
-        } catch (IllegalArgumentException e) {
-            log.error(e.getMessage());
+            request.setAttribute("exception", ErrorCode.EXPRIRE_TOKEN.name());
+        } catch (RuntimeException e) {
+            // 토큰 만료를 제외한 나머지 예외 처리
         }
         return false;
     }
