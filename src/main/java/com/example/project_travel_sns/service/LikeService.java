@@ -38,4 +38,11 @@ public class LikeService {
         //likeResponse 리턴
         return LikeResponse.of("좋아요를 눌렀습니다.");
     }
+
+    public Long likeCount(Long postId) {
+        //포스트 체크
+        Post findPost = AppUtil.findPost(postRepository, postId);
+        //좋아요 갯수 리턴
+        return findPost.getLikes().stream().count();
+    }
 }

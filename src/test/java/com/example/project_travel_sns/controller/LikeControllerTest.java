@@ -19,6 +19,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -97,5 +98,32 @@ class LikeControllerTest {
                         .contentType(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isOk());
+    }
+
+    @Test
+    @DisplayName("좋아요 개수 리턴 성공")
+    @WithMockUser
+    void like_count_SUCCESS() throws Exception {
+        when(likeService.likeCount(any()))
+                .thenReturn(3L);
+
+        mockMvc.perform(get("/api/v1/posts/1/likes")
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andDo(print())
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    @DisplayName("좋아요 카운트 리턴 실패 : 포스트가 없는 경우")
+    @WithMockUser
+    void like_count_FAIL_post() throws Exception {
+        when(likeService.likeCount(any()))
+                .thenThrow(new AppException(ErrorCode.POST_NOT_FOUND, ErrorCode.POST_NOT_FOUND.getMessage()));
+
+        mockMvc.perform(get("/api/v1/posts/1/likes")
+                        .with(csrf()))
+                .andDo(print())
+                .andExpect(status().isNotFound());
     }
 }

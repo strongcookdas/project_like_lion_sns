@@ -12,6 +12,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -26,20 +28,24 @@ class LikeServiceTest {
     UserRepository userRepository = mock(UserRepository.class);
     LikeRepository likeRepository = mock(LikeRepository.class);
 
+
     User user = User.builder()
             .userId(1L)
             .userName("홍길동")
             .password("0000")
             .build();
+    Like like = Like.builder()
+            .id(1L)
+            .build();
+    List<Like> likes = new ArrayList<>();
     Post post = Post.builder()
             .id(1L)
             .title("제목")
             .body("내용입니다.")
             .user(user)
+            .likes(likes)
             .build();
-    Like like = Like.builder()
-            .id(1L)
-            .build();
+
 
     @BeforeEach
     void setUp() {
@@ -92,6 +98,7 @@ class LikeServiceTest {
         AppException exception = assertThrows(AppException.class, () -> likeService.like(user.getUserName(), post.getId()));
         assertEquals(ErrorCode.POST_NOT_FOUND, exception.getErrorCode());
     }
+
     //좋아요 취소 성공
     @Test
     @DisplayName("좋아요 취소 성공")
@@ -100,9 +107,28 @@ class LikeServiceTest {
                 .thenReturn(Optional.of(user));
         when(postRepository.findById(any()))
                 .thenReturn(Optional.of(post));
-        when(likeRepository.findByPostAndUser(any(),any()))
+        when(likeRepository.findByPostAndUser(any(), any()))
                 .thenReturn(Optional.of(like));
 
         assertDoesNotThrow(() -> likeService.like(user.getUserName(), post.getId()));
+    }
+
+    @Test
+    @DisplayName("좋아요 카운트 리턴 성공")
+    void like_count_SUCCESS() {
+        when(postRepository.findById(any()))
+                .thenReturn(Optional.of(post));
+
+        assertDoesNotThrow(() -> likeService.likeCount(post.getId()));
+    }
+
+    @Test
+    @DisplayName("좋아요 카운트 리턴 실패 : 포스트가 없는 경우")
+    void like_count_FAIL_post() {
+        when(postRepository.findById(any()))
+                .thenReturn(Optional.empty());
+
+        AppException exception = assertThrows(AppException.class, () -> likeService.likeCount(post.getId()));
+        assertEquals(ErrorCode.POST_NOT_FOUND, exception.getErrorCode());
     }
 }
