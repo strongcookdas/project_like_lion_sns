@@ -18,7 +18,7 @@ public class JwtUtil {
             Jwts.parser().setSigningKey(key).parseClaimsJws(token);
             return true;
         } catch (ExpiredJwtException e) {
-            request.setAttribute("exception", ErrorCode.EXPRIRE_TOKEN.name());
+            request.setAttribute("exception", ErrorCode.EXPIRE_TOKEN.name());
         } catch (RuntimeException e) {
             // 토큰 만료를 제외한 나머지 예외 처리
         }
