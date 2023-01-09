@@ -31,7 +31,7 @@ public class PostController {
     }
 
     @GetMapping
-    public ResponseEntity<Response<Page<PostGetResponse>>> getPosts(@PageableDefault(size = 20) @SortDefault(sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
+    public ResponseEntity<Response> getPosts(@PageableDefault(size = 20) @SortDefault(sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
         Page<PostGetResponse> postGetResponses = postService.getPosts(pageable);
         return ResponseEntity.ok().body(Response.of("SUCCESS", postGetResponses));
     }
