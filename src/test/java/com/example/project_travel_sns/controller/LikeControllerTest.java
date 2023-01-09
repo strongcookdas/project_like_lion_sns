@@ -1,6 +1,5 @@
 package com.example.project_travel_sns.controller;
 
-import com.example.project_travel_sns.domain.dto.like.LikeResponse;
 import com.example.project_travel_sns.exception.AppException;
 import com.example.project_travel_sns.exception.ErrorCode;
 import com.example.project_travel_sns.service.LikeService;
@@ -15,7 +14,6 @@ import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
@@ -37,16 +35,13 @@ class LikeControllerTest {
     @Autowired
     ObjectMapper objectMapper;
 
-    LikeResponse likeResponse = LikeResponse.builder()
-            .result("좋아요를 눌렀습니다.").build();
-
     // 좋아요 성공
     @Test
     @DisplayName("좋아요 누르기 성공")
     @WithMockUser
     void like_SUCCESS() throws Exception {
         when(likeService.like(any(), any()))
-                .thenReturn(likeResponse);
+                .thenReturn("좋아요를 눌렀습니다.");
 
         mockMvc.perform(post("/api/v1/posts/1/likes")
                         .with(csrf())
@@ -91,7 +86,7 @@ class LikeControllerTest {
     @WithMockUser
     void like_cancel_SUCCESS() throws Exception {
         when(likeService.like(any(), any()))
-                .thenReturn(new LikeResponse("좋아요를 취소했습니다."));
+                .thenReturn("좋아요를 취소했습니다.");
 
         mockMvc.perform(post("/api/v1/posts/1/likes")
                         .with(csrf())

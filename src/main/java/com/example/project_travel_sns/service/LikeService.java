@@ -1,6 +1,5 @@
 package com.example.project_travel_sns.service;
 
-import com.example.project_travel_sns.domain.dto.like.LikeResponse;
 import com.example.project_travel_sns.domain.entity.Like;
 import com.example.project_travel_sns.domain.entity.Post;
 import com.example.project_travel_sns.domain.entity.User;
@@ -20,7 +19,7 @@ public class LikeService {
     private final UserRepository userRepository;
     private final PostRepository postRepository;
 
-    public LikeResponse like(String userName, Long postId) {
+    public String like(String userName, Long postId) {
         //유저체크
         User findUser = AppUtil.findUser(userRepository, userName);
         //포스트체크
@@ -30,13 +29,13 @@ public class LikeService {
         if (optionalLike.isPresent()) {
             Like findLike = optionalLike.get();
             likeRepository.delete(findLike);
-            return LikeResponse.of("좋아요를 취소했습니다.");
+            return "좋아요를 취소했습니다.";
         }
         //엔티티 생성 후 저장
         Like like = Like.of(findUser, findPost);
         likeRepository.save(like);
         //likeResponse 리턴
-        return LikeResponse.of("좋아요를 눌렀습니다.");
+        return "좋아요를 눌렀습니다.";
     }
 
     public Long likeCount(Long postId) {

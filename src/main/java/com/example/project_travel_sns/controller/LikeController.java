@@ -1,7 +1,6 @@
 package com.example.project_travel_sns.controller;
 
 import com.example.project_travel_sns.domain.dto.Response;
-import com.example.project_travel_sns.domain.dto.like.LikeResponse;
 import com.example.project_travel_sns.service.LikeService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -17,7 +16,7 @@ public class LikeController {
     @PostMapping
     public ResponseEntity<Response> like(Authentication authentication, @PathVariable Long postId) {
         String userName = authentication.getName();
-        LikeResponse likeResponse = likeService.like(userName, postId);
+        String likeResponse = likeService.like(userName, postId);
         return ResponseEntity.ok().body(Response.of("SUCCESS", likeResponse));
     }
 
