@@ -34,6 +34,7 @@ public class SecurityConfig {
                 .antMatchers(HttpMethod.PUT, "/api/v1/**").authenticated()
                 .antMatchers(HttpMethod.DELETE, "/api/v1/**").authenticated()
                 .antMatchers(HttpMethod.GET, "/api/v1/posts/my").authenticated()
+                .antMatchers(HttpMethod.GET, "/api/v1/alarms").authenticated()
                 .and()
                 .sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)

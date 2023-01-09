@@ -6,9 +6,12 @@ import com.example.project_travel_sns.domain.dto.comment.CommentResponse;
 import com.example.project_travel_sns.domain.entity.Comment;
 import com.example.project_travel_sns.domain.entity.Post;
 import com.example.project_travel_sns.domain.entity.User;
+import com.example.project_travel_sns.repository.AlarmRepository;
 import com.example.project_travel_sns.repository.CommentRepository;
 import com.example.project_travel_sns.repository.PostRepository;
 import com.example.project_travel_sns.repository.UserRepository;
+import com.example.project_travel_sns.util.alarm.AlarmType;
+import com.example.project_travel_sns.util.alarm.AlarmUtil;
 import com.example.project_travel_sns.util.post.AppUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -22,6 +25,7 @@ public class CommentService {
     private final UserRepository userRepository;
     private final PostRepository postRepository;
     private final CommentRepository commentRepository;
+    private final AlarmRepository alarmRepository;
 
     public CommentResponse write(String userName, Long postId, String comment) {
         //유저 체크
@@ -31,6 +35,8 @@ public class CommentService {
         //댓글 엔티티 변환 후 저장
         Comment saveComment = Comment.of(comment, findUser, findPost);
         saveComment = commentRepository.save(saveComment);
+        //알람 엔티티 저장
+        AlarmUtil.saveAlarm(alarmRepository, AlarmType.NEW_COMMENT_ON_POST, findUser, findPost);
         //댓글 DTO 리턴
         return CommentResponse.of(saveComment);
     }

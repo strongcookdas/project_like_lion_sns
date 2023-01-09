@@ -5,6 +5,7 @@ import com.example.project_travel_sns.domain.entity.Post;
 import com.example.project_travel_sns.domain.entity.User;
 import com.example.project_travel_sns.exception.AppException;
 import com.example.project_travel_sns.exception.ErrorCode;
+import com.example.project_travel_sns.repository.AlarmRepository;
 import com.example.project_travel_sns.repository.CommentRepository;
 import com.example.project_travel_sns.repository.PostRepository;
 import com.example.project_travel_sns.repository.UserRepository;
@@ -26,6 +27,8 @@ class CommentServiceTest {
     PostRepository postRepository = mock(PostRepository.class);
     UserRepository userRepository = mock(UserRepository.class);
     CommentRepository commentRepository = mock(CommentRepository.class);
+
+    AlarmRepository alarmRepository = mock(AlarmRepository.class);
 
     User user = User.builder()
             .userId(1L)
@@ -55,7 +58,7 @@ class CommentServiceTest {
 
     @BeforeEach
     void setUp() {
-        commentService = new CommentService(userRepository, postRepository, commentRepository);
+        commentService = new CommentService(userRepository, postRepository, commentRepository, alarmRepository);
     }
 
     @Test

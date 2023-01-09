@@ -5,6 +5,7 @@ import com.example.project_travel_sns.domain.entity.Post;
 import com.example.project_travel_sns.domain.entity.User;
 import com.example.project_travel_sns.exception.AppException;
 import com.example.project_travel_sns.exception.ErrorCode;
+import com.example.project_travel_sns.repository.AlarmRepository;
 import com.example.project_travel_sns.repository.LikeRepository;
 import com.example.project_travel_sns.repository.PostRepository;
 import com.example.project_travel_sns.repository.UserRepository;
@@ -27,6 +28,7 @@ class LikeServiceTest {
     PostRepository postRepository = mock(PostRepository.class);
     UserRepository userRepository = mock(UserRepository.class);
     LikeRepository likeRepository = mock(LikeRepository.class);
+    AlarmRepository alarmRepository = mock(AlarmRepository.class);
 
 
     User user = User.builder()
@@ -49,7 +51,7 @@ class LikeServiceTest {
 
     @BeforeEach
     void setUp() {
-        likeService = new LikeService(likeRepository, userRepository, postRepository);
+        likeService = new LikeService(likeRepository, userRepository, postRepository, alarmRepository);
     }
 
     //좋아요 누르기 성공
