@@ -10,11 +10,8 @@ import com.example.project_travel_sns.util.post.AppUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -77,11 +74,7 @@ public class PostService {
         //유저 체크
         User findUser = AppUtil.findUser(userRepository, userName);
         //포스트 불러오기
-        List<Post> posts = findUser.getMyPosts();
-        //List -> Page 변환
-        int start = (int) pageable.getOffset();
-        int end = (start + pageable.getPageSize()) > posts.size() ? posts.size() : (start + pageable.getPageSize());
-        Page<Post> myPosts = new PageImpl<>(posts.subList(start, end), pageable, posts.size());
+        Page<Post> myPosts = postRepository.findByUser(pageable, findUser);
         //PostGetResponseDto로 변환 후 리턴
         return PostGetResponse.listOf(myPosts);
     }
