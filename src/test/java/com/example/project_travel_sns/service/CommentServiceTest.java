@@ -1,5 +1,8 @@
 package com.example.project_travel_sns.service;
 
+import com.example.project_travel_sns.domain.dto.comment.CommentDeleteResponse;
+import com.example.project_travel_sns.domain.dto.comment.CommentModifyResponse;
+import com.example.project_travel_sns.domain.dto.comment.CommentResponse;
 import com.example.project_travel_sns.domain.entity.Comment;
 import com.example.project_travel_sns.domain.entity.Post;
 import com.example.project_travel_sns.domain.entity.User;
@@ -9,6 +12,7 @@ import com.example.project_travel_sns.repository.AlarmRepository;
 import com.example.project_travel_sns.repository.CommentRepository;
 import com.example.project_travel_sns.repository.PostRepository;
 import com.example.project_travel_sns.repository.UserRepository;
+import com.example.project_travel_sns.util.ServiceAppInfo;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -23,38 +27,15 @@ import static org.mockito.Mockito.when;
 class CommentServiceTest {
 
     CommentService commentService;
-
     PostRepository postRepository = mock(PostRepository.class);
     UserRepository userRepository = mock(UserRepository.class);
     CommentRepository commentRepository = mock(CommentRepository.class);
-
     AlarmRepository alarmRepository = mock(AlarmRepository.class);
-
-    User user = User.builder()
-            .userId(1L)
-            .userName("홍길동")
-            .password("0000")
-            .build();
-
-    User user2 = User.builder()
-            .userId(2L)
-            .userName("홍길동2")
-            .password("0000")
-            .build();
-
-    Post post = Post.builder()
-            .id(1L)
-            .title("제목")
-            .body("내용입니다.")
-            .user(user)
-            .build();
-
-    Comment comment = Comment.builder()
-            .id(1L)
-            .comment("테스트입니다.")
-            .user(user)
-            .post(post)
-            .build();
+    ServiceAppInfo serviceAppInfo = new ServiceAppInfo();
+    User user = serviceAppInfo.getUser();
+    User user2 = serviceAppInfo.getUser2();
+    Post post = serviceAppInfo.getPost();
+    Comment comment = serviceAppInfo.getComment();
 
     @BeforeEach
     void setUp() {
@@ -72,10 +53,13 @@ class CommentServiceTest {
                 .thenReturn(comment);
 
         assertDoesNotThrow(() -> commentService.write(user.getUserName(), post.getId(), comment.getComment()));
+        CommentResponse commentResponse = commentService.write(user.getUserName(), post.getId(), comment.getComment());
+        assertEquals(commentResponse.getId(), 1L);
+        assertEquals(commentResponse.getComment(), "테스트입니다.");
     }
 
     @Test
-    @DisplayName("댓글 작성 실패1_로그인을 안한 경우")
+    @DisplayName("댓글 작성 실패(1) : 유저가 없는 경우")
     void comment_write_FALID_login() {
         when(userRepository.findByUserName(any()))
                 .thenReturn(Optional.empty());
@@ -89,7 +73,7 @@ class CommentServiceTest {
     }
 
     @Test
-    @DisplayName("댓글 작성 실패2_포스트가 없는 경우")
+    @DisplayName("댓글 작성 실패(2) : 포스트가 없는 경우")
     void comment_write_FALID_post() {
         when(userRepository.findByUserName(any()))
                 .thenReturn(Optional.of(user));
@@ -115,10 +99,13 @@ class CommentServiceTest {
                 .thenReturn(comment);
 
         assertDoesNotThrow(() -> commentService.modify(user.getUserName(), post.getId(), comment.getId(), comment.getComment()));
+        CommentModifyResponse commentModifyResponse = commentService.modify(user.getUserName(), post.getId(), comment.getId(), comment.getComment());
+        assertEquals(commentModifyResponse.getId(), comment.getId());
+        assertEquals(commentModifyResponse.getComment(), comment.getComment());
     }
 
     @Test
-    @DisplayName("댓글 수정 실패1_유저가 존재하지 않는 경우")
+    @DisplayName("댓글 수정 실패(1) : 유저가 존재하지 않는 경우")
     void comment_modify_FALID_user() {
         when(userRepository.findByUserName(any()))
                 .thenReturn(Optional.empty());
@@ -132,7 +119,7 @@ class CommentServiceTest {
     }
 
     @Test
-    @DisplayName("댓글 수정 실패2_포스트가 없는 경우")
+    @DisplayName("댓글 수정 실패(2) : 포스트가 없는 경우")
     void comment_modify_FALID_post() {
         when(userRepository.findByUserName(any()))
                 .thenReturn(Optional.of(user));
@@ -146,7 +133,7 @@ class CommentServiceTest {
     }
 
     @Test
-    @DisplayName("댓글 수정 실패3_작성자 불일치인 경우")
+    @DisplayName("댓글 수정 실패(3) : 작성자 불일치인 경우")
     void comment_modify_FALID_different() {
         when(userRepository.findByUserName(any()))
                 .thenReturn(Optional.of(user2));
@@ -172,10 +159,13 @@ class CommentServiceTest {
                 .thenReturn(Optional.of(comment));
 
         assertDoesNotThrow(() -> commentService.delete(user.getUserName(), post.getId(), comment.getId()));
+        CommentDeleteResponse commentDeleteResponse = commentService.delete(user.getUserName(), post.getId(), comment.getId());
+        assertEquals(commentDeleteResponse.getMessage(), "댓글 삭제 완료");
+        assertEquals(commentDeleteResponse.getId(), comment.getId());
     }
 
     @Test
-    @DisplayName("댓글 삭제 실패1_유저가 존재하지 않는 경우")
+    @DisplayName("댓글 삭제 실패(1) : 유저가 존재하지 않는 경우")
     void comment_delete_FALID_user() {
         when(userRepository.findByUserName(any()))
                 .thenReturn(Optional.empty());
@@ -189,7 +179,7 @@ class CommentServiceTest {
     }
 
     @Test
-    @DisplayName("댓글 삭제 실패2_포스트가 존재하지 않는 경우")
+    @DisplayName("댓글 삭제 실패(2) : 포스트가 존재하지 않는 경우")
     void comment_delete_FALID_post() {
         when(userRepository.findByUserName(any()))
                 .thenReturn(Optional.of(user));
@@ -203,7 +193,7 @@ class CommentServiceTest {
     }
 
     @Test
-    @DisplayName("댓글 삭제 실패3_댓글이 존재하지 않는 경우")
+    @DisplayName("댓글 삭제 실패(3) : 댓글이 존재하지 않는 경우")
     void comment_delete_FALID_comment() {
         when(userRepository.findByUserName(any()))
                 .thenReturn(Optional.of(user));
@@ -217,7 +207,7 @@ class CommentServiceTest {
     }
 
     @Test
-    @DisplayName("댓글 삭제 실패4_작성자가 불인치인 경우")
+    @DisplayName("댓글 삭제 실패(4) : 작성자가 불인치인 경우")
     void comment_delete_FALID_different() {
         when(userRepository.findByUserName(any()))
                 .thenReturn(Optional.of(user2));
