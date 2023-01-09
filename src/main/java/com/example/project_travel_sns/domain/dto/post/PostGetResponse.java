@@ -34,7 +34,7 @@ public class PostGetResponse {
     }
 
     public static Page<PostGetResponse> listOf(Page<Post> posts) {
-        Page<PostGetResponse> postGetResponses = posts.map(m -> PostGetResponse.builder()
+        return posts.map(m -> PostGetResponse.builder()
                 .id(m.getId())
                 .title(m.getTitle())
                 .body(m.getBody())
@@ -42,6 +42,5 @@ public class PostGetResponse {
                 .createdAt(m.getCreatedAt())
                 .lastModifiedAt(m.getModifiedAt())
                 .build());
-        return postGetResponses;
     }
 }

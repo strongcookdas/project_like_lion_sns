@@ -22,7 +22,7 @@ public class AlarmResponse {
     private LocalDateTime createdAt;
 
     public static Page<AlarmResponse> listOf(Page<Alarm> alarms) {
-        Page<AlarmResponse> alarmResponses = alarms.map(m -> AlarmResponse.builder()
+        return alarms.map(m -> AlarmResponse.builder()
                 .id(m.getId())
                 .alarmType(m.getAlarmType())
                 .fromUserId(m.getFromUser().getUserId())
@@ -30,6 +30,5 @@ public class AlarmResponse {
                 .text(m.getText())
                 .createdAt(m.getCreatedAt())
                 .build());
-        return alarmResponses;
     }
 }

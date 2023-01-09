@@ -31,13 +31,12 @@ public class CommentResponse {
     }
 
     public static Page<CommentResponse> listOf(Page<Comment> comments) {
-        Page<CommentResponse> commentResponses = comments.map(m -> CommentResponse.builder()
+        return comments.map(m -> CommentResponse.builder()
                 .id(m.getId())
                 .comment(m.getComment())
                 .userName(m.getUser().getUserName())
                 .postId(m.getPost().getId())
                 .createdAt(m.getCreatedAt())
                 .build());
-        return commentResponses;
     }
 }
