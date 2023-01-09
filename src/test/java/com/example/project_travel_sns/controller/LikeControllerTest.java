@@ -11,6 +11,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.jpa.mapping.JpaMetamodelMappingContext;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithAnonymousUser;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -20,6 +21,7 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(LikeController.class)
@@ -35,7 +37,6 @@ class LikeControllerTest {
     @Autowired
     ObjectMapper objectMapper;
 
-    // 좋아요 성공
     @Test
     @DisplayName("좋아요 누르기 성공")
     @WithMockUser
@@ -50,22 +51,18 @@ class LikeControllerTest {
                 .andExpect(status().isOk());
     }
 
-    // 좋아요 실패(1) : 유저가 없는 경우
     @Test
-    @DisplayName("좋아요 누르기 실패(1) : 유저가 없는 경우")
-    @WithMockUser
+    @DisplayName("좋아요 누르기 실패(1) : 로그인을 하지 않은 경우")
+    @WithAnonymousUser
     void like_FAIL_user() throws Exception {
-        when(likeService.like(any(), any()))
-                .thenThrow(new AppException(ErrorCode.USERNAME_NOT_FOUND, ErrorCode.USERNAME_NOT_FOUND.getMessage()));
 
         mockMvc.perform(post("/api/v1/posts/1/likes")
                         .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON))
                 .andDo(print())
-                .andExpect(status().isNotFound());
+                .andExpect(status().isUnauthorized());
     }
 
-    // 좋아요 실패(2) : 포스트가 없는 경우
     @Test
     @DisplayName("좋아요 누르기 실패(2) : 포스트가 없는 경우")
     @WithMockUser
@@ -77,10 +74,11 @@ class LikeControllerTest {
                         .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON))
                 .andDo(print())
-                .andExpect(status().isNotFound());
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.result.message").exists())
+                .andExpect(jsonPath("$.result.errorCode").exists());
     }
 
-    //좋아요 취소 성공
     @Test
     @DisplayName("좋아요 취소 성공")
     @WithMockUser
@@ -119,6 +117,8 @@ class LikeControllerTest {
         mockMvc.perform(get("/api/v1/posts/1/likes")
                         .with(csrf()))
                 .andDo(print())
-                .andExpect(status().isNotFound());
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.result.message").exists())
+                .andExpect(jsonPath("$.result.errorCode").exists());
     }
 }

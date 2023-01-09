@@ -1,11 +1,10 @@
 package com.example.project_travel_sns.controller;
 
-import com.example.project_travel_sns.domain.dto.post.PostGetResponse;
 import com.example.project_travel_sns.domain.dto.post.PostRequest;
-import com.example.project_travel_sns.domain.dto.post.PostResponse;
 import com.example.project_travel_sns.exception.AppException;
 import com.example.project_travel_sns.exception.ErrorCode;
 import com.example.project_travel_sns.service.PostService;
+import com.example.project_travel_sns.util.ControllerAppInfo;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -22,9 +21,6 @@ import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithAnonymousUser;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
-
-
-import java.time.LocalDateTime;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
@@ -47,31 +43,20 @@ class PostControllerTest {
     @Autowired
     ObjectMapper objectMapper;
 
-    PostGetResponse postGetResponse = PostGetResponse.builder()
-            .id(1l)
-            .userName("홍길동")
-            .title("제목")
-            .body("내용입니다.")
-            .createdAt(LocalDateTime.now())
-            .lastModifiedAt(LocalDateTime.now()).build();
+    ControllerAppInfo controllerAppInfo = new ControllerAppInfo();
 
     @Test
     @DisplayName("포스트 작성 성공")
     @WithMockUser
     void post_write_SUCCESS() throws Exception {
-        String title = "테스트";
-        String body = "테스트입니다.";
-
-        String message = "포스트 등록 완료";
-        Long id = 1l;
 
         when(postService.write(any(), any(), any()))
-                .thenReturn(new PostResponse(message, id));
+                .thenReturn(controllerAppInfo.getPostResponse());
 
         mockMvc.perform(post("/api/v1/posts")
                         .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsBytes(new PostRequest(title, body))))
+                        .content(objectMapper.writeValueAsBytes(new PostRequest("제목입니다", "내용입니다."))))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.result.message").exists())
@@ -79,37 +64,13 @@ class PostControllerTest {
     }
 
     @Test
-    @DisplayName("포스트 작성 실패_인증")
-    @WithMockUser
+    @DisplayName("포스트 작성 실패 : 로그인을 하지 않은 경우")
+    @WithAnonymousUser
     void post_write_FAILED_authentication() throws Exception {
-        String title = "테스트";
-        String body = "테스트입니다.";
-
-        when(postService.write(any(), any(), any()))
-                .thenThrow(new AppException(ErrorCode.INVALID_TOKEN, ErrorCode.INVALID_PASSWORD.getMessage()));
-
         mockMvc.perform(post("/api/v1/posts")
                         .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsBytes(new PostRequest(title, body))))
-                .andDo(print())
-                .andExpect(status().isUnauthorized());
-    }
-
-    @Test
-    @DisplayName("포스트 작성 실패_토큰 만료")
-    @WithMockUser
-    void post_write_FAILED() throws Exception {
-        String title = "테스트";
-        String body = "테스트입니다.";
-
-        when(postService.write(any(), any(), any()))
-                .thenThrow(new AppException(ErrorCode.INVALID_TOKEN, ErrorCode.INVALID_TOKEN.getMessage()));
-
-        mockMvc.perform(post("/api/v1/posts")
-                        .with(csrf())
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsBytes(new PostRequest(title, body))))
+                        .content(objectMapper.writeValueAsBytes(new PostRequest("제목입니다", "내용입니다"))))
                 .andDo(print())
                 .andExpect(status().isUnauthorized());
     }
@@ -118,11 +79,9 @@ class PostControllerTest {
     @DisplayName("포스트 상세 조회 성공")
     @WithMockUser
     void post_get_detail_SUCCESS() throws Exception {
-        String title = "테스트";
-        String body = "테스트입니다.";
 
         when(postService.getPost(any()))
-                .thenReturn(postGetResponse);
+                .thenReturn(controllerAppInfo.getPostGetResponse());
 
         mockMvc.perform(get("/api/v1/posts/1")
                         .with(csrf()))
@@ -131,51 +90,45 @@ class PostControllerTest {
                 .andExpect(jsonPath("$.result.id").exists())
                 .andExpect(jsonPath("$.result.title").exists())
                 .andExpect(jsonPath("$.result.body").exists())
-                .andExpect(jsonPath("$.result.userName").exists());
+                .andExpect(jsonPath("$.result.userName").exists())
+                .andExpect(jsonPath("$.result.createdAt").exists())
+                .andExpect(jsonPath("$.result.lastModifiedAt").exists());
     }
 
     @Test
     @DisplayName("포스트 수정 성공")
     @WithMockUser
     void post_modify_SUCCESS() throws Exception {
-        String title = "테스트";
-        String body = "테스트입니다.";
 
         when(postService.modify(any(), any(), any(), any()))
-                .thenReturn(new PostResponse(title, 1l));
+                .thenReturn(controllerAppInfo.getPostResponse());
 
         mockMvc.perform(put("/api/v1/posts/1")
                         .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsBytes(new PostRequest(title, body))))
+                        .content(objectMapper.writeValueAsBytes(new PostRequest("제목입니다", "내용입니다."))))
                 .andDo(print())
-                .andExpect(status().isOk());
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.result.message").exists())
+                .andExpect(jsonPath("$.result.postId").exists());
     }
 
     @Test
-    @DisplayName("포스트 수정 실패1_인증")
+    @DisplayName("포스트 수정 실패(1) : 로그인을 하지 않은 경우")
     @WithAnonymousUser
     void post_modify_FAILED_authentication() throws Exception {
-        String title = "테스트";
-        String body = "테스트입니다.";
-
-        when(postService.modify(any(), any(), any(), any()))
-                .thenThrow(new AppException(ErrorCode.INVALID_PERMISSION, ErrorCode.INVALID_PERMISSION.getMessage()));
-
         mockMvc.perform(put("/api/v1/posts/1")
                         .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsBytes(new PostRequest(title, body))))
+                        .content(objectMapper.writeValueAsBytes(new PostRequest("제목입니다", "내용입니다."))))
                 .andDo(print())
                 .andExpect(status().isUnauthorized());
     }
 
     @Test
-    @DisplayName("포스트 수정 실패2_작성자 불일치")
+    @DisplayName("포스트 수정 실패(2) : 작성자 불일치")
     @WithMockUser
     void post_modify_FAILED_different() throws Exception {
-        String title = "테스트";
-        String body = "테스트입니다.";
 
         when(postService.modify(any(), any(), any(), any()))
                 .thenThrow(new AppException(ErrorCode.INVALID_PERMISSION, ErrorCode.INVALID_PERMISSION.getMessage()));
@@ -183,17 +136,17 @@ class PostControllerTest {
         mockMvc.perform(put("/api/v1/posts/1")
                         .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsBytes(new PostRequest(title, body))))
+                        .content(objectMapper.writeValueAsBytes(new PostRequest("제목입니다", "내용입니다."))))
                 .andDo(print())
-                .andExpect(status().isUnauthorized());
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.result.message").exists())
+                .andExpect(jsonPath("$.result.errorCode").exists());
     }
 
     @Test
-    @DisplayName("포스트 수정 실패3_데이터베이스 에러")
+    @DisplayName("포스트 수정 실패(3) : 데이터베이스 에러")
     @WithMockUser
     void post_modify_FAILED_db() throws Exception {
-        String title = "테스트";
-        String body = "테스트입니다.";
 
         when(postService.modify(any(), any(), any(), any()))
                 .thenThrow(new AppException(ErrorCode.DATABASE_ERROR, ErrorCode.DATABASE_ERROR.getMessage()));
@@ -201,53 +154,48 @@ class PostControllerTest {
         mockMvc.perform(put("/api/v1/posts/1")
                         .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsBytes(new PostRequest(title, body))))
+                        .content(objectMapper.writeValueAsBytes(new PostRequest("제목입니다", "내용입니다."))))
                 .andDo(print())
-                .andExpect(status().isInternalServerError());
+                .andExpect(status().isInternalServerError())
+                .andExpect(jsonPath("$.result.message").exists())
+                .andExpect(jsonPath("$.result.errorCode").exists());
     }
 
     @Test
     @DisplayName("포스트 삭제 성공")
     @WithMockUser
     void post_delete_SUCCESS() throws Exception {
-        String title = "테스트";
-        String body = "테스트입니다.";
 
         when(postService.delete(any(), any()))
-                .thenReturn(new PostResponse("포스트 삭제 완료", 1l));
+                .thenReturn(controllerAppInfo.getPostResponse());
 
         mockMvc.perform(delete("/api/v1/posts/1")
                         .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsBytes(new PostRequest(title, body))))
+                        .content(objectMapper.writeValueAsBytes(new PostRequest("제목입니다", "내용입니다."))))
                 .andDo(print())
-                .andExpect(status().isOk());
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.result.message").exists())
+                .andExpect(jsonPath("$.result.postId").exists());
     }
 
     @Test
-    @DisplayName("포스트 삭제 실패1_인증")
+    @DisplayName("포스트 삭제 실패(1) : 로그인을 하지 않은 경우")
     @WithAnonymousUser
     void post_delete_FAILED_authentication() throws Exception {
-        String title = "테스트";
-        String body = "테스트입니다.";
-
-        when(postService.delete(any(), any()))
-                .thenThrow(new AppException(ErrorCode.INVALID_PERMISSION, ErrorCode.INVALID_PERMISSION.getMessage()));
 
         mockMvc.perform(delete("/api/v1/posts/1")
                         .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsBytes(new PostRequest(title, body))))
+                        .content(objectMapper.writeValueAsBytes(new PostRequest("제목입니다", "내용입니다."))))
                 .andDo(print())
                 .andExpect(status().isUnauthorized());
     }
 
     @Test
-    @DisplayName("포스트 삭제 실패2_작성자 불일치")
+    @DisplayName("포스트 삭제 실패(2) : 작성자 불일치")
     @WithMockUser
     void post_delete_FAILED_different() throws Exception {
-        String title = "테스트";
-        String body = "테스트입니다.";
 
         when(postService.delete(any(), any()))
                 .thenThrow(new AppException(ErrorCode.INVALID_PERMISSION, ErrorCode.INVALID_PERMISSION.getMessage()));
@@ -255,17 +203,17 @@ class PostControllerTest {
         mockMvc.perform(delete("/api/v1/posts/1")
                         .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsBytes(new PostRequest(title, body))))
+                        .content(objectMapper.writeValueAsBytes(new PostRequest("제목", "테스트입니다."))))
                 .andDo(print())
-                .andExpect(status().isUnauthorized());
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.result.message").exists())
+                .andExpect(jsonPath("$.result.errorCode").exists());
     }
 
     @Test
     @DisplayName("포스트 삭제 실패3_데이터베이스 에러")
     @WithMockUser
     void post_delete_FAILED_db() throws Exception {
-        String title = "테스트";
-        String body = "테스트입니다.";
 
         when(postService.delete(any(), any()))
                 .thenThrow(new AppException(ErrorCode.DATABASE_ERROR, ErrorCode.DATABASE_ERROR.getMessage()));
@@ -273,9 +221,11 @@ class PostControllerTest {
         mockMvc.perform(delete("/api/v1/posts/1")
                         .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsBytes(new PostRequest(title, body))))
+                        .content(objectMapper.writeValueAsBytes(new PostRequest("제목", "테스트입니다."))))
                 .andDo(print())
-                .andExpect(status().isInternalServerError());
+                .andExpect(status().isInternalServerError())
+                .andExpect(jsonPath("$.result.message").exists())
+                .andExpect(jsonPath("$.result.errorCode").exists());
     }
 
     @Test
@@ -296,7 +246,7 @@ class PostControllerTest {
 
         assertEquals(0, pageRequest.getPageNumber());
         assertEquals(3, pageRequest.getPageSize());
-        assertEquals(Sort.by("createdAt","desc"), pageRequest.withSort(Sort.by("createdAt","desc")).getSort());
+        assertEquals(Sort.by(Sort.Direction.DESC, "createdAt"), pageRequest.getSort());
     }
 
     @Test
@@ -304,7 +254,7 @@ class PostControllerTest {
     @WithMockUser
     void post_my_SUCCESS() throws Exception {
 
-        when(postService.getMyPosts(any(),any())).thenReturn(Page.empty());
+        when(postService.getMyPosts(any(), any())).thenReturn(Page.empty());
 
         mockMvc.perform(get("/api/v1/posts/my")
                         .with(csrf()))
@@ -312,12 +262,9 @@ class PostControllerTest {
     }
 
     @Test
-    @DisplayName("마이피드 목록 실패_로그인 실패")
+    @DisplayName("마이피드 목록 실패(1) : 로그인을 하지 않은 경우")
     @WithAnonymousUser
     void post_my_FAILED_login() throws Exception {
-
-        when(postService.getMyPosts(any(),any()))
-                .thenThrow(new AppException(ErrorCode.INVALID_PERMISSION, ErrorCode.INVALID_PERMISSION.getMessage()));
 
         mockMvc.perform(get("/api/v1/posts/my")
                         .with(csrf())

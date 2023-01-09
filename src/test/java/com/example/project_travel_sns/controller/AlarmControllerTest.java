@@ -1,6 +1,5 @@
 package com.example.project_travel_sns.controller;
 
-import com.example.project_travel_sns.domain.dto.alarm.AlarmResponse;
 import com.example.project_travel_sns.exception.AppException;
 import com.example.project_travel_sns.exception.ErrorCode;
 import com.example.project_travel_sns.service.AlarmService;
@@ -24,6 +23,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 
@@ -68,6 +68,8 @@ class AlarmControllerTest {
                         .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON))
                 .andDo(print())
-                .andExpect(status().isNotFound());
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.result.message").exists())
+                .andExpect(jsonPath("$.result.errorCode").exists());
     }
 }
