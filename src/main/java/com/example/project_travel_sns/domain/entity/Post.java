@@ -1,14 +1,11 @@
 package com.example.project_travel_sns.domain.entity;
 
-import com.example.project_travel_sns.domain.dto.post.PostGetResponse;
 import lombok.*;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
 
 import javax.persistence.*;
 import java.util.List;
-
-import static javax.persistence.CascadeType.REMOVE;
 
 @NoArgsConstructor
 @AllArgsConstructor

@@ -1,10 +1,8 @@
 package com.example.project_travel_sns.domain.entity;
 
 import lombok.*;
-import org.springframework.data.domain.Page;
 
 import javax.persistence.*;
-import java.util.ArrayList;
 import java.util.List;
 
 @AllArgsConstructor
