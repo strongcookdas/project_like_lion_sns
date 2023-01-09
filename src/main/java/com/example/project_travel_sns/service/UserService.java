@@ -22,8 +22,6 @@ public class UserService {
     @Value("${jwt.token.key}")
     private String key;
 
-    private long expireTimeMs = 1000 * 60 * 60l;
-
     public UserJoinResponse join(String userName, String password) {
         //userName 중복확인
         userRepository.findByUserName(userName).ifPresent(user -> {
@@ -33,11 +31,11 @@ public class UserService {
         User savedUser = User.of(userName, encoder.encode(password));
         savedUser = userRepository.save(savedUser);
         //ResponseDTO
-        UserJoinResponse userJoinResponse = UserJoinResponse.of(savedUser.getUserId(), savedUser.getUserName());
-        return userJoinResponse;
+        return UserJoinResponse.of(savedUser.getUserId(), savedUser.getUserName());
     }
 
     public UserLoginResponse login(String userName, String password) {
+        final long expireTimeMs = 1000 * 60 * 60L;
         //userName 체크
         User selectedUser = userRepository.findByUserName(userName).orElseThrow(() -> {
             throw new AppException(ErrorCode.USERNAME_NOT_FOUND, ErrorCode.USERNAME_NOT_FOUND.getMessage());

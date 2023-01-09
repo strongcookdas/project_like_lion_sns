@@ -24,7 +24,6 @@ public class AlarmService {
         //알람 가져오기
         Page<Alarm> alarmPage = alarmRepository.findByUser(pageable, findUser);
         //알람 dto 변환 후 리턴
-        Page<AlarmResponse> alarmResponses = AlarmResponse.listOf(alarmPage);
-        return alarmResponses;
+        return AlarmResponse.listOf(alarmPage);
     }
 }

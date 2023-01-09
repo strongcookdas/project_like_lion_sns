@@ -66,8 +66,7 @@ public class PostService {
 
     public Page<PostGetResponse> getPosts(Pageable pageable) {
         Page<Post> posts = postRepository.findAll(pageable);
-        Page<PostGetResponse> postGetResponses = PostGetResponse.listOf(posts);
-        return postGetResponses;
+        return PostGetResponse.listOf(posts);
     }
 
     public Page<PostGetResponse> getMyPosts(Pageable pageable, String userName) {
