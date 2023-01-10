@@ -54,7 +54,7 @@ class LikeControllerTest {
     @Test
     @DisplayName("좋아요 누르기 실패(1) : 로그인을 하지 않은 경우")
     @WithAnonymousUser
-    void like_FAIL_user() throws Exception {
+    void like_FAIL_login() throws Exception {
 
         mockMvc.perform(post("/api/v1/posts/1/likes")
                         .with(csrf())

@@ -69,7 +69,7 @@ class CommentControllerTest {
     @Test
     @DisplayName("댓글 작성 실패(1) : 로그인을 하지 않은 경우")
     @WithAnonymousUser
-    void comment_write_FAILD_login() throws Exception {
+    void comment_write_FAIL_login() throws Exception {
 
         mockMvc.perform(post("/api/v1/posts/1/comments")
                         .with(csrf())
@@ -82,7 +82,7 @@ class CommentControllerTest {
     @Test
     @DisplayName("댓글 작성 실패(2) : 포스트가 없는 경우")
     @WithMockUser
-    void comment_write_FAILD_() throws Exception {
+    void comment_write_FAIL_post() throws Exception {
 
         when(commentService.write(any(), any(), any()))
                 .thenThrow(new AppException(ErrorCode.POST_NOT_FOUND, ErrorCode.POST_NOT_FOUND.getMessage()));
@@ -122,7 +122,7 @@ class CommentControllerTest {
     @Test
     @DisplayName("댓글 수정 실패(1) : 로그인을 하지 않은 경우")
     @WithAnonymousUser
-    void comment_modify_FAILD_login() throws Exception {
+    void comment_modify_FAIL_login() throws Exception {
 
         mockMvc.perform(put("/api/v1/posts/1/comments/1")
                         .with(csrf())
@@ -207,7 +207,7 @@ class CommentControllerTest {
     @Test
     @DisplayName("댓글 삭제 실패(1) : 로그인을 하지 않은 경우")
     @WithAnonymousUser
-    void comment_delete_FAILD_user() throws Exception {
+    void comment_delete_FAIL_user() throws Exception {
         mockMvc.perform(delete("/api/v1/posts/1/comments/1")
                         .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON))
@@ -216,9 +216,9 @@ class CommentControllerTest {
     }
 
     @Test
-    @DisplayName("댓글 삭제 실패1_포스트가 없는 경우")
+    @DisplayName("댓글 삭제 실패(2) : 포스트가 없는 경우")
     @WithMockUser
-    void comment_delete_FAILD_post() throws Exception {
+    void comment_delete_FAIL_post() throws Exception {
         when(commentService.delete(any(), any(), any()))
                 .thenThrow(new AppException(ErrorCode.POST_NOT_FOUND, ErrorCode.POST_NOT_FOUND.getMessage()));
 
@@ -234,7 +234,7 @@ class CommentControllerTest {
     @Test
     @DisplayName("댓글 삭제 실패3_작성자 불일치인 경우")
     @WithMockUser
-    void comment_delete_FAILD_different() throws Exception {
+    void comment_delete_FAIL_different() throws Exception {
 
         when(commentService.delete(any(), any(), any()))
                 .thenThrow(new AppException(ErrorCode.INVALID_PERMISSION, ErrorCode.INVALID_PERMISSION.getMessage()));
@@ -251,7 +251,7 @@ class CommentControllerTest {
     @Test
     @DisplayName("댓글 삭제 실패4_DB에러인 경우")
     @WithMockUser
-    void comment_delete_FAILD_db() throws Exception {
+    void comment_delete_FAIL_db() throws Exception {
 
         when(commentService.delete(any(), any(), any()))
                 .thenThrow(new AppException(ErrorCode.DATABASE_ERROR, ErrorCode.DATABASE_ERROR.getMessage()));

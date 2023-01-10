@@ -60,7 +60,7 @@ class CommentServiceTest {
 
     @Test
     @DisplayName("댓글 작성 실패(1) : 유저가 없는 경우")
-    void comment_write_FALID_login() {
+    void comment_write_FAIL_login() {
         when(userRepository.findByUserName(any()))
                 .thenReturn(Optional.empty());
         when(postRepository.findById(any()))
@@ -74,7 +74,7 @@ class CommentServiceTest {
 
     @Test
     @DisplayName("댓글 작성 실패(2) : 포스트가 없는 경우")
-    void comment_write_FALID_post() {
+    void comment_write_FAIL_post() {
         when(userRepository.findByUserName(any()))
                 .thenReturn(Optional.of(user));
         when(postRepository.findById(any()))
@@ -106,7 +106,7 @@ class CommentServiceTest {
 
     @Test
     @DisplayName("댓글 수정 실패(1) : 유저가 존재하지 않는 경우")
-    void comment_modify_FALID_user() {
+    void comment_modify_FAIL_user() {
         when(userRepository.findByUserName(any()))
                 .thenReturn(Optional.empty());
         when(postRepository.findById(any()))
@@ -120,7 +120,7 @@ class CommentServiceTest {
 
     @Test
     @DisplayName("댓글 수정 실패(2) : 포스트가 없는 경우")
-    void comment_modify_FALID_post() {
+    void comment_modify_FAIL_post() {
         when(userRepository.findByUserName(any()))
                 .thenReturn(Optional.of(user));
         when(postRepository.findById(any()))
@@ -134,7 +134,7 @@ class CommentServiceTest {
 
     @Test
     @DisplayName("댓글 수정 실패(3) : 작성자 불일치인 경우")
-    void comment_modify_FALID_different() {
+    void comment_modify_FAIL_different() {
         when(userRepository.findByUserName(any()))
                 .thenReturn(Optional.of(user2));
         when(postRepository.findById(any()))
@@ -166,7 +166,7 @@ class CommentServiceTest {
 
     @Test
     @DisplayName("댓글 삭제 실패(1) : 유저가 존재하지 않는 경우")
-    void comment_delete_FALID_user() {
+    void comment_delete_FAIL_user() {
         when(userRepository.findByUserName(any()))
                 .thenReturn(Optional.empty());
         when(postRepository.findById(any()))
@@ -180,7 +180,7 @@ class CommentServiceTest {
 
     @Test
     @DisplayName("댓글 삭제 실패(2) : 포스트가 존재하지 않는 경우")
-    void comment_delete_FALID_post() {
+    void comment_delete_FAIL_post() {
         when(userRepository.findByUserName(any()))
                 .thenReturn(Optional.of(user));
         when(postRepository.findById(any()))
@@ -194,7 +194,7 @@ class CommentServiceTest {
 
     @Test
     @DisplayName("댓글 삭제 실패(3) : 댓글이 존재하지 않는 경우")
-    void comment_delete_FALID_comment() {
+    void comment_delete_FAIL_comment() {
         when(userRepository.findByUserName(any()))
                 .thenReturn(Optional.of(user));
         when(postRepository.findById(any()))
@@ -208,7 +208,7 @@ class CommentServiceTest {
 
     @Test
     @DisplayName("댓글 삭제 실패(4) : 작성자가 불인치인 경우")
-    void comment_delete_FALID_different() {
+    void comment_delete_FAIL_different() {
         when(userRepository.findByUserName(any()))
                 .thenReturn(Optional.of(user2));
         when(postRepository.findById(any()))
